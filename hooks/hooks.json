@@ -1,0 +1,29 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -d \"${CLAUDE_PROJECT_DIR:-.}/.shipwright\" ]; then echo 'Shipwright: this project has open work state in .shipwright/. Before other work, use the shipwright skill and run its `sw.py resume` to see open items and the next step.'; fi",
+            "shell": "bash",
+            "async": false
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/guard_state.py\"",
+            "async": false
+          }
+        ]
+      }
+    ]
+  }
+}

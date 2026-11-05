@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
+node_modules/
+# Shipwright work state belongs to the projects that use the plugin, not to the plugin repo
+.shipwright/

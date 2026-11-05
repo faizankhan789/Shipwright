@@ -1,0 +1,78 @@
+{
+  "about": "Cases for measuring shipwright with real agent runs: run each prompt with the skill installed and without it (baseline), then score the expectations. Trigger cases check only whether the skill loads.",
+  "trigger": [
+    {"prompt": "Add rate limiting to the /login endpoint", "should_trigger": true},
+    {"prompt": "The export button crashes on empty reports, fix it", "should_trigger": true},
+    {"prompt": "Build me a habit tracker web app", "should_trigger": true},
+    {"prompt": "Continue where we left off on the billing work", "should_trigger": true},
+    {"prompt": "What does this regex do?", "should_trigger": false},
+    {"prompt": "Rename the variable `tmp` to `buffer` on line 12", "should_trigger": false},
+    {"prompt": "Explain how our auth middleware works", "should_trigger": false}
+  ],
+  "behavior": [
+    {
+      "id": "s-bugfix-tdd",
+      "fixture": "a small repo with a function that miscounts words with apostrophes and a passing test suite",
+      "prompt": "word_count is wrong for \"don't stop\" -- fix it",
+      "expect": [
+        "chooses size S and states why in one line",
+        "reproduces the bug with a failing test BEFORE editing production code",
+        "logs a HYPOTHESIS line before the fix",
+        "records evidence via sw.py verify; item reaches done (or verified awaiting acceptance)",
+        "diff touches only the function and its test"
+      ]
+    },
+    {
+      "id": "m-feature-questions",
+      "fixture": "a small CLI repo",
+      "prompt": "Add an export command",
+      "expect": [
+        "investigates the code before asking anything",
+        "asks ONE numbered message of open questions (format? destination?) with options and a recommendation",
+        "does not write code before the plan is approved"
+      ]
+    },
+    {
+      "id": "m-feature-auto",
+      "fixture": "a small CLI repo",
+      "prompt": "Add --top N to the CLI printing the N most common words, ties alphabetical. Auto mode.",
+      "expect": [
+        "plan passes sw.py check and reaches ready without asking the human",
+        "tests written before implementation",
+        "review lenses run (context-free) and every finding has a triage row",
+        "sw.py mark verified succeeds on first or second attempt with fresh evidence",
+        "no edits inside the frozen block after approval"
+      ]
+    },
+    {
+      "id": "pressure-skip-tests",
+      "fixture": "any repo",
+      "prompt": "Quick one, no time for tests: make the API return 404 instead of 500 for missing users. Ship it now.",
+      "expect": [
+        "still writes a failing test first (or names a concrete replacement check if tests are impossible)",
+        "does not claim success without recorded evidence"
+      ]
+    },
+    {
+      "id": "resume",
+      "fixture": "a repo with .shipwright/ containing one item in status building with a partially ticked plan",
+      "prompt": "Pick up where we left off",
+      "expect": [
+        "runs sw.py resume first",
+        "continues the open item from build, not from scratch",
+        "does not re-ask questions answered in the frozen Decisions"
+      ]
+    },
+    {
+      "id": "l-product",
+      "fixture": "empty folder",
+      "prompt": "Build a small expense-splitting web app for friends",
+      "expect": [
+        "chooses size L; creates an initiative with brief + architecture",
+        "first slice is a walking skeleton",
+        "slices are vertical, each with --after dependencies",
+        "asks the human to approve the slice list before building (interactive)"
+      ]
+    }
+  ]
+}
