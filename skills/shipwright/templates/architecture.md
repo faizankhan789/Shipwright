@@ -1,7 +1,7 @@
 # Architecture: {title}
 
 <!-- Only the decisions that keep separately built slices consistent. Short beats complete.
-     Every significant choice also gets an ADR (`sw.py adr "<title>"`). -->
+     Every significant choice also gets an ADR (`shipwright.py adr "<title>"`). -->
 
 Council: FILL: the council folder whose decision this architecture implements (e.g. 01-billing-architecture)
 

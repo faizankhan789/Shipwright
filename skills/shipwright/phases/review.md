@@ -16,14 +16,14 @@ Give the blind lens its finding floor: `N = min(floor(sqrt(kB) + 1), 10)`, using
 
 | Lens | Agent | File (fallback) | Runs when |
 |---|---|---|---|
-| Blind hunter | `shipwright:sw-blind-reviewer` | `lenses/blind.md` | always (M) |
-| Edge-case hunter | `shipwright:sw-edge-case-reviewer` | `lenses/edge-case.md` | always |
-| Verification gap | `shipwright:sw-verification-gap-reviewer` | `lenses/verification-gap.md` | always (M) |
-| Intent alignment | `shipwright:sw-intent-reviewer` | `lenses/intent-alignment.md` | always (M) |
-| Project rules | `shipwright:sw-rules-reviewer` | `lenses/rules.md` | always (M) |
-| UI craft | `shipwright:sw-ui-reviewer` | `lenses/ui-craft.md` | the diff touches UI |
-| Security | `shipwright:sw-security-reviewer` | `lenses/security.md` | the diff touches input handling, auth, secrets, payments, or dependencies; or risk is high |
-| PR expert (extra) | general-purpose + `library/coding/pr-review-expert/GUIDE.md` | — | risk is high |
+| Blind hunter | `shipwright:shipwright-blind-reviewer` | `lenses/blind.md` | always (M) |
+| Edge-case hunter | `shipwright:shipwright-edge-case-reviewer` | `lenses/edge-case.md` | always |
+| Verification gap | `shipwright:shipwright-verification-gap-reviewer` | `lenses/verification-gap.md` | always (M) |
+| Intent alignment | `shipwright:shipwright-intent-reviewer` | `lenses/intent-alignment.md` | always (M) |
+| Project rules | `shipwright:shipwright-rules-reviewer` | `lenses/rules.md` | always (M) |
+| UI craft | `shipwright:shipwright-ui-reviewer` | `lenses/ui-craft.md` | the diff touches UI |
+| Security | `shipwright:shipwright-security-reviewer` | `lenses/security.md` | the diff touches input handling, auth, secrets, payments, or dependencies; or risk is high |
+| PR expert (extra) | general-purpose + `library/shipwright_coding/shipwright-pr-review-expert/GUIDE.md` | — | risk is high |
 
 Announce which lenses you are skipping and why.
 
@@ -75,7 +75,7 @@ shared cause. Then route each group:
 |---|---|---|
 | `intent-gap` | yes | The frozen intent is incomplete. Save `review/diff.patch` as `review/attempt-<n>.patch`, revert the code, run `SW mark <id> draft`, and ask the human (Clarify step 3). Then re-plan, re-approve with `ready`, and build. That counts as a loopback |
 | `bad-plan` | yes | The plan should have prevented it. Record KEEP notes (what worked), revert, amend the plan outside the frozen block, log it in the Plan Change Log, then rebuild. If the amendment needs a change to `## Verification`, go through `draft` → `ready` for re-approval |
-| `patch` | yes | The fix is trivial: it adds no public surface and guards no state you can't show is reachable. Send all patches in one message to the same implementer (continue that agent, e.g. with SendMessage to its id): "Fix each with the smallest change; run only the covering tests; reply with what you changed". If it can't be resumed, apply them yourself. From the 3rd loopback (`loopbacks` in the frontmatter), use a **fresh** `sw-implementer` on the strongest model instead. Then re-run every check with `SW verify`, because evidence goes stale on any code change |
+| `patch` | yes | The fix is trivial: it adds no public surface and guards no state you can't show is reachable. Send all patches in one message to the same implementer (continue that agent, e.g. with SendMessage to its id): "Fix each with the smallest change; run only the covering tests; reply with what you changed". If it can't be resumed, apply them yourself. From the 3rd loopback (`loopbacks` in the frontmatter), use a **fresh** `shipwright-implementer` on the strongest model instead. Then re-run every check with `SW verify`, because evidence goes stale on any code change |
 | `defer` | no | The problem was there before this change, or it is an unverified medium or high. Run `SW defer`. Never edit agent-instruction files (CLAUDE.md, AGENTS.md) from a review |
 
 **Order matters.** If any group routes to `intent-gap` or `bad-plan`, that's a loopback: patches

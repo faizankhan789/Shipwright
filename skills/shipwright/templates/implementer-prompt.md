@@ -1,6 +1,6 @@
 # Implementer dispatch (fallback when the plugin agents are unavailable)
 
-With the plugin installed, dispatch `shipwright:sw-implementer` instead. It already contains
+With the plugin installed, dispatch `shipwright:shipwright-implementer` instead. It already contains
 these rules. Without it, send a general-purpose subagent this prompt, with the paths filled in:
 
 ```text

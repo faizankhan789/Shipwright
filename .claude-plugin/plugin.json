@@ -1,10 +1,19 @@
 {
   "name": "shipwright",
-  "description": "One package to take a feature, bug fix, refactor or whole product from intent to verified, reviewed code: sized workflow, plans and decisions on disk, script-enforced gates, test-first, root-cause debugging, parallel context-free review agents, and bundled UI and coding guides (taste-skill, impeccable, emil, interface-design, motion, mobile, systematic debugging, TDD and more).",
+  "description": "One package to take a feature, bug fix, refactor or whole product from intent to verified, reviewed code: sized workflow, plans and decisions on disk, script-enforced gates, test-first, root-cause debugging, parallel context-free review agents, and bundled UI and coding guides (art direction, design craft, UI polish, interface-design, motion, mobile, systematic debugging, TDD and more).",
   "version": "1.0.0",
   "author": {
     "name": "Faizan Khan"
   },
-  "license": "SEE NOTICE.md (bundled guides carry their own licenses; see skills/shipwright/library/LICENSES.md)",
-  "keywords": ["workflow", "tdd", "debugging", "code-review", "planning", "ui", "design", "agents"]
+  "license": "SEE LICENSE IN LICENSE",
+  "keywords": [
+    "workflow",
+    "tdd",
+    "debugging",
+    "code-review",
+    "planning",
+    "ui",
+    "design",
+    "agents"
+  ]
 }

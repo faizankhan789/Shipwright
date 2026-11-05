@@ -3,7 +3,7 @@
 
 The skill files are the single source of truth; agents are generated, never hand-edited, so the
 two can never drift apart (a duplicated reviewer prompt that drifted produced a silent
-false-clean bug in BMad). `--check` exits 1 if agents/ is out of date (used by the tests).
+false-clean bug in an earlier workflow). `--check` exits 1 if agents/ is out of date (used by the tests).
 Usage: python3 tools/build_agents.py [--check]
 """
 from __future__ import annotations
@@ -26,50 +26,50 @@ COUNCIL_TOOLS = "Read, Grep, Glob, WebSearch, WebFetch"
 
 # name: (description, tools or None for all, model, preamble, source files)
 SPECS = {
-    "sw-implementer": (
+    "shipwright-implementer": (
         "Shipwright implementer: builds one approved Shipwright plan test-first with the smallest diff, "
-        "records red/green evidence with sw.py, then reports DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / "
+        "records red/green evidence with shipwright.py, then reports DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / "
         "BLOCKED. Dispatched by the shipwright skill during Build; give it the plan path and the skill folder.",
         None, "inherit",
         "You are Shipwright's implementer.",
         ["disciplines/implementation.md", "disciplines/tdd.md"],
     ),
-    "sw-blind-reviewer": (
+    "shipwright-blind-reviewer": (
         "Shipwright review lens: context-free blind hunter that reads only a diff and lists what is wrong "
         "or missing. Read-only. Dispatched by the shipwright skill during Review.",
         REVIEW_TOOLS, "opus",
         "You are Shipwright's blind-hunter reviewer.",
         ["lenses/blind.md"],
     ),
-    "sw-edge-case-reviewer": (
+    "shipwright-edge-case-reviewer": (
         "Shipwright review lens: exhaustive path tracer that lists unhandled branches, deletions and "
         "falsified plan claims as JSON. Read-only. Dispatched by the shipwright skill during Review.",
         REVIEW_TOOLS, "opus",
         "You are Shipwright's edge-case reviewer.",
         ["lenses/edge-case.md"],
     ),
-    "sw-verification-gap-reviewer": (
+    "shipwright-verification-gap-reviewer": (
         "Shipwright review lens: finds changed behavior that could regress without any test failing. "
         "Read-only. Dispatched by the shipwright skill during Review.",
         REVIEW_TOOLS, "opus",
         "You are Shipwright's verification-gap reviewer.",
         ["lenses/verification-gap.md"],
     ),
-    "sw-intent-reviewer": (
+    "shipwright-intent-reviewer": (
         "Shipwright review lens: audits whether a diff implements the approved intent, and flags "
         "divergence and unrequested scope. Read-only. Dispatched by the shipwright skill during Review.",
         REVIEW_TOOLS, "opus",
         "You are Shipwright's intent-alignment reviewer.",
         ["lenses/intent-alignment.md"],
     ),
-    "sw-ui-reviewer": (
+    "shipwright-ui-reviewer": (
         "Shipwright review lens for UI changes: states, design system, hierarchy, accessibility, "
         "responsiveness, copy, generic-AI look. Read-only. Dispatched by the shipwright skill during Review.",
         REVIEW_TOOLS, "opus",
         "You are Shipwright's UI-craft reviewer.",
         ["lenses/ui-craft.md"],
     ),
-    "sw-security-reviewer": (
+    "shipwright-security-reviewer": (
         "Shipwright review lens for security: traces untrusted input to sinks, auth/authz on new routes, "
         "secrets, dependencies and config. Read-only. Dispatched by the shipwright skill during Review "
         "when a change touches trust boundaries or risk is high.",
@@ -77,7 +77,7 @@ SPECS = {
         "You are Shipwright's security reviewer.",
         ["lenses/security.md"],
     ),
-    "sw-rules-reviewer": (
+    "shipwright-rules-reviewer": (
         "Shipwright review lens: checks a diff against the project's own rules (AGENTS.md, CLAUDE.md, "
         ".shipwright/context.md conventions and pitfalls, accepted ADRs). Read-only. Dispatched by the "
         "shipwright skill on every size-M review.",
@@ -85,42 +85,42 @@ SPECS = {
         "You are Shipwright's project-rules reviewer.",
         ["lenses/rules.md"],
     ),
-    "sw-principal-architect": (
+    "shipwright-principal-architect": (
         "Shipwright council member, Principal Solution Architect (20+ years): boundaries, data ownership, contracts, quality-attribute trade-offs (ATAM), C4, Well-Architected review, build vs buy. Argues independently in 3 debate rounds "
         "(position, anonymized critique, revision with dissent). Dispatched by the shipwright council protocol.",
         COUNCIL_TOOLS, "opus",
         "You are a member of Shipwright's design council: Principal Solution Architect (20+ years).",
         ["council/member-rules.md", "council/architect.md"],
     ),
-    "sw-ai-engineer": (
+    "shipwright-ai-engineer": (
         "Shipwright council member, Full-Stack AI Engineer (20+ years): end-to-end buildability, AI pattern choice (call/RAG/tools/agent), evals, guardrails, model cost and latency, walking skeleton. Argues independently in 3 debate rounds "
         "(position, anonymized critique, revision with dissent). Dispatched by the shipwright council protocol.",
         COUNCIL_TOOLS, "opus",
         "You are a member of Shipwright's design council: Full-Stack AI Engineer (20+ years).",
         ["council/member-rules.md", "council/ai-engineer.md"],
     ),
-    "sw-staff-engineer": (
+    "shipwright-staff-engineer": (
         "Shipwright council member, Senior Staff Software Engineer (20+ years): simplicity, correctness hot spots, testability, fit with the existing codebase, migration/rollback, complexity budget. Argues independently in 3 debate rounds "
         "(position, anonymized critique, revision with dissent). Dispatched by the shipwright council protocol.",
         COUNCIL_TOOLS, "opus",
         "You are a member of Shipwright's design council: Senior Staff Software Engineer (20+ years).",
         ["council/member-rules.md", "council/engineer.md"],
     ),
-    "sw-design-lead": (
+    "shipwright-design-lead": (
         "Shipwright council member, Senior Product & UI Designer (20+ years): users and jobs, flows, every UI state, accessibility (WCAG 2.1 AA), design system, UX requirements on the backend. Argues independently in 3 debate rounds "
         "(position, anonymized critique, revision with dissent). Dispatched by the shipwright council protocol.",
         COUNCIL_TOOLS, "opus",
         "You are a member of Shipwright's design council: Senior Product & UI Designer (20+ years).",
         ["council/member-rules.md", "council/designer.md"],
     ),
-    "sw-red-team": (
+    "shipwright-red-team": (
         "Shipwright council member, Red Team for reliability, security and cost (20+ years): pre-mortem, attacks on trust boundaries, failure modes, cost at 10x/100x, riskiest assumption. Argues independently in 3 debate rounds "
         "(position, anonymized critique, revision with dissent). Dispatched by the shipwright council protocol.",
         COUNCIL_TOOLS, "opus",
         "You are a member of Shipwright's design council: Red Team for reliability, security and cost (20+ years).",
         ["council/member-rules.md", "council/red-team.md"],
     ),
-    "sw-council-judge": (
+    "shipwright-council-judge": (
         "Shipwright council judge: scores the council's options blind against the brief's weighted quality "
         "scenarios, with a reason per score, close calls and the flip assumption. Does not debate. Dispatched "
         "by the shipwright council protocol after round 3.",
@@ -128,7 +128,7 @@ SPECS = {
         "You are the judge of Shipwright's design council.",
         ["council/judge.md"],
     ),
-    "sw-debugger": (
+    "shipwright-debugger": (
         "Shipwright debugger: finds the root cause of a bug or unexpected failure with the four-phase "
         "method, proves it with a failing test, and reports cause, evidence and the minimal fix. "
         "Dispatched by the shipwright skill.",
@@ -136,14 +136,14 @@ SPECS = {
         "You are Shipwright's debugger. Find the root cause before anything else. Unless your prompt "
         "explicitly asks you to fix it, stop after writing the failing reproduction test and report: the "
         "root cause (file:line), the evidence, the hypotheses you ruled out, and the minimal fix you "
-        "recommend. For depth, read `library/debugging/systematic-debugging/GUIDE.md`; for browser, "
-        "performance or Android failures, pick the matching `library/debugging/` guide from "
+        "recommend. For depth, read `library/shipwright_debugging/shipwright-systematic-debugging/GUIDE.md`; for browser, "
+        "performance or Android failures, pick the matching `library/shipwright_debugging/` guide from "
         "`library/ROUTING.md`.",
         ["disciplines/debugging.md"],
     ),
-    "sw-ui-designer": (
+    "shipwright-ui-designer": (
         "Shipwright UI designer/builder: designs and implements UI for an approved plan using the bundled "
-        "design guides (taste-skill, impeccable, interface-design, emil, motion, mobile), then verifies "
+        "design guides (art direction, design craft, interface design, UI polish, motion, mobile), then verifies "
         "in a real browser. Dispatched by the shipwright skill for UI tasks.",
         None, "inherit",
         "You are Shipwright's UI designer and builder. You work from an approved plan. Before designing, "
@@ -154,7 +154,7 @@ SPECS = {
         "and what you checked.",
         ["disciplines/ui.md"],
     ),
-    "sw-investigator": (
+    "shipwright-investigator": (
         "Shipwright investigator: read-only codebase search that returns a short, plan-ready summary "
         "(files, symbols, what to reuse, what not to touch, covering tests). Dispatched by the shipwright "
         "skill during Clarify.",
@@ -167,7 +167,7 @@ SPECS = {
         "- **Tests:** what covers this area today, `path`\n"
         "- **Open:** anything the code cannot answer (these become Open Questions)\n"
         "No narration of the search itself. For an unfamiliar codebase, "
-        "`library/coding/codebase-onboarding/GUIDE.md` has a method.",
+        "`library/shipwright_coding/shipwright-codebase-onboarding/GUIDE.md` has a method.",
         [],
     ),
 }

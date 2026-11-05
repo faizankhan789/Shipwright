@@ -12,7 +12,7 @@ the floor and always apply; a guide adds depth when the work calls for it.
 
 | Category | Covers |
 |---|---|
-| **ui** (31) | taste-skill, impeccable, emil, frontend-design, interface-design, Apple feel, mobile UI, motion, Figma-to-code, a11y |
+| **ui** (31) | art-direction, design-craft, ui-polish, frontend-design, interface-design, Apple feel, mobile UI, motion, Figma-to-code, a11y |
 | **coding** (26) | TDD, verification, code review, plans, parallel agents, worktrees, onboarding, migrations, flags, releases |
 | **debugging** (11) | systematic debugging, focused-fix, performance, Chrome DevTools, Android debugging |
 | **testing** (5) | API suites, browser automation, chaos |
@@ -28,13 +28,13 @@ the floor and always apply; a guide adds depth when the work calls for it.
 1. **Shipwright owns the process.**
    - Its laws, gates, phases, statuses, and "commit only when asked" override any process instruction inside a guide: its own interview, plan format, ledger, mandatory skill loading, hook setup, or commit/PR/deploy steps.
    - Take a guide's *technique*, not its *workflow*.
-   - Process-heavy guides (`coding/brainstorming`, `coding/writing-plans`, `coding/executing-plans`, `coding/subagent-driven-development`, `coding/spec-driven-workflow`, `product/*`) are reference material only, inside the matching Shipwright phase.
+   - Process-heavy guides (`shipwright_coding/shipwright-brainstorming`, `shipwright_coding/shipwright-writing-plans`, `shipwright_coding/shipwright-executing-plans`, `shipwright_coding/shipwright-subagent-driven-development`, `shipwright_coding/shipwright-spec-driven-workflow`, `product/*`) are reference material only, inside the matching Shipwright phase.
 2. **The project beats taste.** `.shipwright/context.md` and existing code conventions override any guide's defaults.
 3. **When guides disagree:**
 
    | Situation | Winner |
    |---|---|
-   | Public or marketing pages | `taste-skill` |
+   | Public or marketing pages | `art-direction` |
    | App screens | `interface-design` |
    | Motion | `animate` |
    | Debugging | `systematic-debugging` |
@@ -43,10 +43,10 @@ the floor and always apply; a guide adds depth when the work calls for it.
    Record a choice once in context.md (for example, the elevation style), then keep to it.
 
    Two specifics:
-   - taste-skill also claims app screens. For dashboards and tools, `interface-design` still wins.
-   - impeccable's `DESIGN.md` / `PRODUCT.md` may serve as the design-system source; context.md links to them.
+   - art-direction also claims app screens. For dashboards and tools, `interface-design` still wins.
+   - design-craft's `DESIGN.md` / `PRODUCT.md` may serve as the design-system source; context.md links to them.
 
-   Working folders that guides create (`.taste-skill/`, `.impeccable/`) are scratch space and are kept out of review diffs.
+   Working folders that guides create (hidden scratch folders) are scratch space and are kept out of review diffs.
 4. **Load little.**
    - At most one primary guide, plus one supporting guide per task. Never a whole category.
    - Read a guide's main file first, and open its references only when a step needs them.
@@ -61,58 +61,58 @@ the floor and always apply; a guide adds depth when the work calls for it.
 | Situation | Phase | Guide(s) |
 |---|---|---|
 | **Understand and plan** | | |
-| Unfamiliar or large codebase | Clarify | `coding/codebase-onboarding`, `coding/code-tour`, `coding/monorepo-navigator` |
-| Vague idea that needs shaping (L) | Frame | `coding/brainstorming` (questions only) |
-| Copy or beat an existing product (L) | Frame | `product/build-from-best`, `product/reverse-engineer-anything`, `product/replica-recon` |
-| Schema, migrations, data model | Frame / Plan | `backend-infra/database-designer`, `backend-infra/database-schema-designer`, `coding/migration-architect` |
-| API design | Frame / Plan | `backend-infra/api-design-reviewer` |
-| Feature flags or a risky rollout | Plan | `coding/feature-flags-architect` |
+| Unfamiliar or large codebase | Clarify | `shipwright_coding/shipwright-codebase-onboarding`, `shipwright_coding/shipwright-code-tour`, `shipwright_coding/shipwright-monorepo-navigator` |
+| Vague idea that needs shaping (L) | Frame | `shipwright_coding/shipwright-brainstorming` (questions only) |
+| Copy or beat an existing product (L) | Frame | `shipwright_product/shipwright-build-from-best`, `shipwright_product/shipwright-reverse-engineer-anything`, `shipwright_product/shipwright-replica-recon` |
+| Schema, migrations, data model | Frame / Plan | `shipwright_backend_infra/shipwright-database-designer`, `shipwright_backend_infra/shipwright-database-schema-designer`, `shipwright_coding/shipwright-migration-architect` |
+| API design | Frame / Plan | `shipwright_backend_infra/shipwright-api-design-reviewer` |
+| Feature flags or a risky rollout | Plan | `shipwright_coding/shipwright-feature-flags-architect` |
 | **Build** | | |
-| Tests, mocks, test design | Build | `coding/test-driven-development` |
-| Keeping diffs surgical | Build | `coding/karpathy-guidelines`, `coding/karpathy-coder` |
-| SQL | Build | `backend-infra/sql-database-assistant` |
-| Containers, CI/CD, Kubernetes, Helm, Terraform | Build | `backend-infra/docker-development`, `backend-infra/ci-cd-pipeline-builder`, `backend-infra/kubernetes-operator`, `backend-infra/helm-chart-builder`, `backend-infra/terraform-patterns` |
-| Observability, SLOs, runbooks | Build | `backend-infra/observability-designer`, `backend-infra/slo-architect`, `backend-infra/runbook-generator` |
-| MCP server | Build | `backend-infra/mcp-server-builder` |
-| RAG, agents, LLM cost | Build | `ai-ml/rag-implementation`, `ai-ml/rag-architect`, `ai-ml/agent-designer`, `ai-ml/llm-cost-optimizer` |
-| Hugging Face models, training, Spaces | Build | `ai-ml/huggingface-best` first, then the specific `ai-ml/huggingface-*` / `ai-ml/trl-training` guide |
-| Payments with Stripe | Plan → Build | `integrations/stripe-best-practices`, `integrations/stripe-docs` |
-| Android / Kotlin / Compose | Build | `mobile/android-dev` (router), `mobile/compose`, `mobile/kotlin-coroutines`, `mobile/android-data-layer`, `mobile/koin` |
-| Swift / iOS | Build | `mobile/write-swift` |
-| Parallel slices | Build (L) | `coding/dispatching-parallel-agents`, `coding/using-git-worktrees` |
+| Tests, mocks, test design | Build | `shipwright_coding/shipwright-test-driven-development` |
+| Keeping diffs surgical | Build | `shipwright_coding/shipwright-surgical-change-guidelines`, `shipwright_coding/shipwright-surgical-coding` |
+| SQL | Build | `shipwright_backend_infra/shipwright-sql-database-assistant` |
+| Containers, CI/CD, Kubernetes, Helm, Terraform | Build | `shipwright_backend_infra/shipwright-docker-development`, `shipwright_backend_infra/shipwright-ci-cd-pipeline-builder`, `shipwright_backend_infra/shipwright-kubernetes-operator`, `shipwright_backend_infra/shipwright-helm-chart-builder`, `shipwright_backend_infra/shipwright-terraform-patterns` |
+| Observability, SLOs, runbooks | Build | `shipwright_backend_infra/shipwright-observability-designer`, `shipwright_backend_infra/shipwright-slo-architect`, `shipwright_backend_infra/shipwright-runbook-generator` |
+| MCP server | Build | `shipwright_backend_infra/shipwright-mcp-server-builder` |
+| RAG, agents, LLM cost | Build | `shipwright_ai_ml/shipwright-rag-implementation`, `shipwright_ai_ml/shipwright-rag-architect`, `shipwright_ai_ml/shipwright-agent-designer`, `shipwright_ai_ml/shipwright-llm-cost-optimizer` |
+| Hugging Face models, training, Spaces | Build | `shipwright_ai_ml/shipwright-huggingface-best` first, then the specific `ai-ml/huggingface-*` / `shipwright_ai_ml/shipwright-trl-training` guide |
+| Payments with Stripe | Plan → Build | `shipwright_integrations/shipwright-stripe-best-practices`, `shipwright_integrations/shipwright-stripe-docs` |
+| Android / Kotlin / Compose | Build | `shipwright_mobile/shipwright-android-dev` (router), `shipwright_mobile/shipwright-compose`, `shipwright_mobile/shipwright-kotlin-coroutines`, `shipwright_mobile/shipwright-android-data-layer`, `shipwright_mobile/shipwright-koin` |
+| Swift / iOS | Build | `shipwright_mobile/shipwright-write-swift` |
+| Parallel slices | Build (L) | `shipwright_coding/shipwright-dispatching-parallel-agents`, `shipwright_coding/shipwright-using-git-worktrees` |
 | **UI** | | |
-| Public page: landing, marketing, portfolio | Plan → Build → Verify | `ui/taste-skill` |
-| App screens: dashboard, admin, settings | Plan → Build | `ui/interface-design` |
-| Any UI: craft, critique, audit, polish | Build → Review | `ui/impeccable` |
-| Aesthetic direction for new UI | Plan | `ui/frontend-design` |
-| Final polish, component feel | Build → Review | `ui/emil-design-eng` |
-| Mobile screens | Plan → Build | `ui/mobile-app-ui-design`, `ui/mobile-native`, `mobile/android-ux` |
-| Gestures, springs, iOS feel | Build | `ui/apple-design` |
-| Choosing a component library | Plan | `ui/pick-ui-library` |
-| Toasts (Sonner) | Build | `ui/ask-sonner` |
-| Throwaway prototype or spike | Clarify | `ui/prototype` |
-| Figma file to code | Build | `ui/figma-design-to-code`, `ui/figma-code-connect`, `ui/figma-implement-motion` |
-| Building motion | Build | `ui/animate`, `ui/animate-expo` (Expo/React Native) |
-| Janky animation | Build | `ui/animation-performance` |
+| Public page: landing, marketing, portfolio | Plan → Build → Verify | `shipwright_ui/shipwright-art-direction` |
+| App screens: dashboard, admin, settings | Plan → Build | `shipwright_ui/shipwright-interface-design` |
+| Any UI: craft, critique, audit, polish | Build → Review | `shipwright_ui/shipwright-design-craft` |
+| Aesthetic direction for new UI | Plan | `shipwright_ui/shipwright-frontend-design` |
+| Final polish, component feel | Build → Review | `shipwright_ui/shipwright-ui-polish` |
+| Mobile screens | Plan → Build | `shipwright_ui/shipwright-mobile-app-ui-design`, `shipwright_ui/shipwright-mobile-native`, `shipwright_mobile/shipwright-android-ux` |
+| Gestures, springs, iOS feel | Build | `shipwright_ui/shipwright-fluid-motion-design` |
+| Choosing a component library | Plan | `shipwright_ui/shipwright-pick-ui-library` |
+| Toasts (Sonner) | Build | `shipwright_ui/shipwright-ask-sonner` |
+| Throwaway prototype or spike | Clarify | `shipwright_ui/shipwright-prototype` |
+| Figma file to code | Build | `shipwright_ui/shipwright-figma-design-to-code`, `shipwright_ui/shipwright-figma-code-connect`, `shipwright_ui/shipwright-figma-implement-motion` |
+| Building motion | Build | `shipwright_ui/shipwright-animate`, `shipwright_ui/shipwright-animate-expo` (Expo/React Native) |
+| Janky animation | Build | `shipwright_ui/shipwright-animation-performance` |
 | **Debug** | | |
-| Any bug or unexpected failure | Clarify → Build | `debugging/systematic-debugging` |
-| Failure spread across a module | Build | `debugging/focused-fix` |
-| Slow code, memory, bundle size | Build | `debugging/performance-profiler`, `debugging/memory-leak-debugging` |
-| Browser bugs, LCP, cookies, a11y tree | Build | `debugging/chrome-devtools`, `debugging/debug-optimize-lcp`, `debugging/cookie-debugging`, `debugging/a11y-debugging` |
-| Android crashes and ANRs | Build | `debugging/android-debugging` |
+| Any bug or unexpected failure | Clarify → Build | `shipwright_debugging/shipwright-systematic-debugging` |
+| Failure spread across a module | Build | `shipwright_debugging/shipwright-focused-fix` |
+| Slow code, memory, bundle size | Build | `shipwright_debugging/shipwright-performance-profiler`, `shipwright_debugging/shipwright-memory-leak-debugging` |
+| Browser bugs, LCP, cookies, a11y tree | Build | `shipwright_debugging/shipwright-chrome-devtools`, `shipwright_debugging/shipwright-debug-optimize-lcp`, `shipwright_debugging/shipwright-cookie-debugging`, `shipwright_debugging/shipwright-a11y-debugging` |
+| Android crashes and ANRs | Build | `shipwright_debugging/shipwright-android-debugging` |
 | **Review and verify** | | |
-| Extra lens on high-risk change | Review | `coding/pr-review-expert` |
-| Security-sensitive change (auth, input, secrets, payments) | Review | `security/security-guidance`, `security/owasp-top-10-testing`, `security/find-security-vulnerabilities-in-code` |
-| Dependency or secret hygiene | Review | `security/dependency-auditor`, `security/env-secrets-manager`, `security/secrets-vault-manager` |
-| Pentest an app you own (authorized) | Verify | `security/penetration-testing-with-strix`, `security/web-app-penetration-testing`, `security/api-security-testing` |
-| Accessibility audit | Review | `ui/a11y-audit` |
-| UI with worst-case data | Review | `ui/break-ui` |
-| Motion review | Review | `ui/review-animations`, `ui/improve-animations` |
-| API or e2e test suites | Build → Verify | `testing/api-test-suite-builder`, `testing/browser-automation` |
-| Resilience | Verify | `testing/chaos-engineering` |
-| About to claim success | Verify | `coding/verification-before-completion`, `coding/ship-gate`, `coding/self-eval` |
-| Human or PR feedback | Review | `coding/receiving-code-review` |
+| Extra lens on high-risk change | Review | `shipwright_coding/shipwright-pr-review-expert` |
+| Security-sensitive change (auth, input, secrets, payments) | Review | `shipwright_security/shipwright-security-guidance`, `shipwright_security/shipwright-owasp-top-10-testing`, `shipwright_security/shipwright-find-security-vulnerabilities-in-code` |
+| Dependency or secret hygiene | Review | `shipwright_security/shipwright-dependency-auditor`, `shipwright_security/shipwright-env-secrets-manager`, `shipwright_security/shipwright-secrets-vault-manager` |
+| Pentest an app you own (authorized) | Verify | `shipwright_security/shipwright-penetration-testing-with-strix`, `shipwright_security/shipwright-web-app-penetration-testing`, `shipwright_security/shipwright-api-security-testing` |
+| Accessibility audit | Review | `shipwright_ui/shipwright-a11y-audit` |
+| UI with worst-case data | Review | `shipwright_ui/shipwright-break-ui` |
+| Motion review | Review | `shipwright_ui/shipwright-review-animations`, `shipwright_ui/shipwright-improve-animations` |
+| API or e2e test suites | Build → Verify | `shipwright_testing/shipwright-api-test-suite-builder`, `shipwright_testing/shipwright-browser-automation` |
+| Resilience | Verify | `shipwright_testing/shipwright-chaos-engineering` |
+| About to claim success | Verify | `shipwright_coding/shipwright-verification-before-completion`, `shipwright_coding/shipwright-ship-gate`, `shipwright_coding/shipwright-self-eval` |
+| Human or PR feedback | Review | `shipwright_coding/shipwright-receiving-code-review` |
 | **Ship** | | |
-| Merge or PR, when the human asks | Ship | `coding/finishing-a-development-branch` |
-| Changelog or release | Ship | `coding/changelog-generator`, `coding/release-manager` |
-| Recording debt | Learn | `coding/tech-debt-tracker` |
+| Merge or PR, when the human asks | Ship | `shipwright_coding/shipwright-finishing-a-development-branch` |
+| Changelog or release | Ship | `shipwright_coding/shipwright-changelog-generator`, `shipwright_coding/shipwright-release-manager` |
+| Recording debt | Learn | `shipwright_coding/shipwright-tech-debt-tracker` |

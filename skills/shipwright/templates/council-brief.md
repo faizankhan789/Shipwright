@@ -1,7 +1,7 @@
 # Council brief: {title}
 
 <!-- Written by the moderator before round 1. Members see only this file and the evidence it points to.
-     Delete every comment and every FILL marker before running `sw.py council check`. -->
+     Delete every comment and every FILL marker before running `shipwright.py council check`. -->
 
 ## Question
 

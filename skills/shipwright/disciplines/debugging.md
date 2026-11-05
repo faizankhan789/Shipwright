@@ -4,8 +4,8 @@
 most when the fix "seems obvious" or time is short.
 
 For depth, load:
-- `library/debugging/systematic-debugging/GUIDE.md`, with its `root-cause-tracing.md` and `find-polluter.sh`
-- `library/debugging/focused-fix/GUIDE.md` for failures that span a whole module
+- `library/shipwright_debugging/shipwright-systematic-debugging/GUIDE.md`, with its `root-cause-tracing.md` and `find-polluter.sh`
+- `library/shipwright_debugging/shipwright-focused-fix/GUIDE.md` for failures that span a whole module
 - the browser, performance, or Android debugging guides listed in `library/ROUTING.md`
 
 Record each phase in the item log (`SW log <id> "HYPOTHESIS: ..."`). That record is what makes
@@ -35,7 +35,7 @@ the investigation auditable and resumable.
 1. Write a failing test that reproduces the bug, and record it with `SW verify <id> --expect-fail -- <test>`.
    `verified` refuses a bugfix that has no red run and no logged `HYPOTHESIS:`.
 2. Make one fix, at the root cause. Then add validation at each layer the bad value crossed, so
-   the bug can't come back by another path (`library/debugging/systematic-debugging/defense-in-depth.md`).
+   the bug can't come back by another path (`library/shipwright_debugging/shipwright-systematic-debugging/defense-in-depth.md`).
 3. The test passes, and nothing else broke: run it through `SW verify`.
 
 ## Three strikes

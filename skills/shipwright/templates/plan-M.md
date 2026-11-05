@@ -3,7 +3,7 @@
 
 <!-- Size M plan. Target 900-1600 tokens: below risks ambiguity, above risks context rot.
      Use boundaries and examples, not step-by-step "how". Cross-layer work for ONE goal stays in ONE plan.
-     Delete every comment when you fill it. Run `sw.py check <id>` until it passes. -->
+     Delete every comment when you fill it. Run `shipwright.py check <id>` until it passes. -->
 
 <!-- frozen:start -->
 ## Intent
@@ -55,8 +55,8 @@
 
 ## Verification
 
-<!-- Commands in backticks are REQUIRED to pass via `sw.py verify` before `verified`.
-     UI work: add the impeccable detect / taste inspect commands from disciplines/ui.md.
+<!-- Commands in backticks are REQUIRED to pass via `shipwright.py verify` before `verified`.
+     UI work: add the design-craft detect / taste inspect commands from disciplines/ui.md.
      Add `- Manual: ...` for what no command can check; it is recorded with --artifact <screenshot>.
      This section is frozen at approval, like the Intent. -->
 
@@ -75,7 +75,7 @@
 
 <!-- Append-only. One row per lens finding, every pass. `pending` rows block `verified`.
      Verdict: high | medium | low | false | maybe-false. Route: patch | bad-plan | intent-gap | defer | reject.
-     Add rows with `sw.py triage`. Every lens that ran gets at least one row; a lens with no findings:
+     Add rows with `shipwright.py triage`. Every lens that ran gets at least one row; a lens with no findings:
      | n | <lens> | - | no findings | false | - | - | -->
 
 | # | Lens | Location | Claim | Verdict | Route | Evidence / action |

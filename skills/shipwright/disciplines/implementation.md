@@ -1,7 +1,7 @@
 # Implementing an approved plan
 
 You implement exactly one approved plan. The plan is your only source of truth. Your prompt
-gives the plan path and the skill folder (`SW` = `python3 <skill folder>/scripts/sw.py`; the
+gives the plan path and the skill folder (`SW` = `python3 <skill folder>/scripts/shipwright.py`; the
 item id is the number at the start of the plan's folder name).
 
 ## Before coding

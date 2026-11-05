@@ -45,7 +45,7 @@ Re-read the plan as the builder would, and ask:
 Fix whatever you find.
 
 **Builder check (M with risk medium or high):** dispatch a fresh subagent with no conversation
-context, using `library/coding/brainstorming/builder-check-prompt.md` on the plan. Sort its
+context, using `library/shipwright_coding/shipwright-brainstorming/builder-check-prompt.md` on the plan. Sort its
 questions:
 - **Already answered** by the conversation or the code: write the answer into the plan.
 - **Minor:** settle it yourself and mark it `(ruling: why)`.

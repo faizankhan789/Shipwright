@@ -40,7 +40,7 @@ Finding the failure that matters most, while it is still cheap to fix.
 
 ## Library you may consult
 
-- `library/security/` (security-guidance, owasp-top-10-testing)
-- `library/testing/chaos-engineering`
-- `library/backend-infra/slo-architect`
-- `library/ai-ml/llm-cost-optimizer`
+- `library/shipwright_security/` (shipwright-security-guidance, shipwright-owasp-top-10-testing)
+- `library/shipwright_testing/shipwright-chaos-engineering`
+- `library/shipwright_backend_infra/shipwright-slo-architect`
+- `library/shipwright_ai_ml/shipwright-llm-cost-optimizer`

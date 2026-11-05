@@ -27,12 +27,12 @@ the final call. The protocol follows what multi-agent debate research found work
 
 | Agent | Owns |
 |---|---|
-| `shipwright:sw-principal-architect` | Boundaries, data, contracts, quality trade-offs, Well-Architected |
-| `shipwright:sw-ai-engineer` | Buildability end to end; AI pattern, evals, guardrails, cost |
-| `shipwright:sw-staff-engineer` | Simplicity, correctness, testability, fit with the codebase, delivery |
-| `shipwright:sw-design-lead` | Users, flows, states, accessibility, design system |
-| `shipwright:sw-red-team` | Pre-mortem, attacks on security, reliability, cost and assumptions |
-| `shipwright:sw-council-judge` | Not a debater. After round 3 it scores the options blind, against the brief's quality scenarios |
+| `shipwright:shipwright-principal-architect` | Boundaries, data, contracts, quality trade-offs, Well-Architected |
+| `shipwright:shipwright-ai-engineer` | Buildability end to end; AI pattern, evals, guardrails, cost |
+| `shipwright:shipwright-staff-engineer` | Simplicity, correctness, testability, fit with the codebase, delivery |
+| `shipwright:shipwright-design-lead` | Users, flows, states, accessibility, design system |
+| `shipwright:shipwright-red-team` | Pre-mortem, attacks on security, reliability, cost and assumptions |
+| `shipwright:shipwright-council-judge` | Not a debater. After round 3 it scores the options blind, against the brief's quality scenarios |
 
 Drop the design lead when there is no user-facing surface, and the AI engineer when there is no
 AI and no full-stack slice. Say which members you dropped and why. Without the plugin agents,
@@ -63,7 +63,7 @@ save every round as `round-N/<letter>.md`, so no file on disk names a member.
 2. Each member returns its revised position ending in `## Dissent`. Save it to `round-3/<letter>.md`.
 
 **4. Judge, then decide:**
-1. Dispatch `shipwright:sw-council-judge` with the brief, the option list, and `round-3/input.md` (anonymized).
+1. Dispatch `shipwright:shipwright-council-judge` with the brief, the option list, and `round-3/input.md` (anonymized).
    It returns a weighted score matrix with a reason per score. Save that output as `judge.md`.
 2. Then fill in `decision.md` from `templates/solution-design.md`. Put the judge's matrix in `## Evaluation`.
 - **Options:** at least 2 fundamentally different ones, plus "do nothing" or "buy" when relevant. Each gets its real strengths, not a strawman.
@@ -74,7 +74,7 @@ save every round as `round-N/<letter>.md`, so no file on disk names a member.
 - **ADRs:** each irreversible decision gets `SW adr`.
 
 **5. Key and check:**
-1. Write `key.md`, mapping each label to its member (`- A: sw-red-team`).
+1. Write `key.md`, mapping each label to its member (`- A: shipwright-red-team`).
 2. Run `SW council check <slug>`. It refuses unless:
    - the brief is complete, with 3+ quality scenarios
    - every round has the same 3+ anonymous members

@@ -6,7 +6,7 @@ the cross-cutting decisions made once.
 ## 0. Copying or beating an existing product?
 
 If the goal is "like X" or "better than X":
-1. Run `library/product/build-from-best/GUIDE.md` Phases 1–2 (research the best existing
+1. Run `library/shipwright_product/shipwright-build-from-best/GUIDE.md` Phases 1–2 (research the best existing
    products, then write the spec) and feed the result into the brief.
 2. Put its Phase 5 gate commands into the matching slices' `## Verification`.
 
@@ -29,7 +29,7 @@ Then run `SW initiative "<title>"` and fill in `brief.md`. Number the in-scope r
 Use the human's own words, and mark your own guesses `(guess)`.
 
 Run a builder check on the brief: a fresh subagent with
-`library/coding/brainstorming/builder-check-prompt.md`. Clear the Open Questions with the human
+`library/shipwright_coding/shipwright-brainstorming/builder-check-prompt.md`. Clear the Open Questions with the human
 as in `phases/clarify.md` step 3.
 
 Existing codebase: investigate first. The brief describes the change, not the whole system.

@@ -10,7 +10,7 @@ Read `disciplines/verification.md`, then:
 3. Run `SW mark <id> verified`. If it refuses, the gate lists what is missing. Fix that; never route around it.
    Any code change after `verified` makes the evidence stale, and `done` re-runs the same gates.
 4. **Deploying?** If the human asks to ship to an environment, first run the ship gate:
-   `SW verify <id> -- python3 <skill>/library/coding/ship-gate/scripts/ship_gate_scanner.py --no-interactive .`
+   `SW verify <id> -- python3 <skill>/library/shipwright_coding/shipwright-ship-gate/scripts/ship_gate_scanner.py --no-interactive .`
 
 ## 2. Present (interactive)
 

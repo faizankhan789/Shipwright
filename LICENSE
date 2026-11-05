@@ -1,0 +1,19 @@
+Shipwright License
+
+Copyright (c) 2026 Faizan Khan. All rights reserved.
+
+Shipwright, including its skill, agents, hooks, scripts, templates, documentation and the
+compilation of its library, is proprietary software of the copyright holder.
+
+Permission is granted to the copyright holder and to persons the copyright holder authorizes in
+writing to use, copy and modify Shipwright for their own internal purposes. Any other use,
+redistribution, sublicensing or sale requires prior written permission from the copyright holder.
+
+Third-party components included in Shipwright remain subject to their own licenses or to the
+written permissions under which they are included; see THIRD-PARTY-NOTICES.md. Nothing in this
+license restricts rights granted by those licenses.
+
+SHIPWRIGHT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY ARISING FROM, OUT OF OR IN CONNECTION WITH SHIPWRIGHT OR ITS USE.

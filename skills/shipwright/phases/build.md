@@ -18,9 +18,9 @@ Read `disciplines/tdd.md` now.
 ## Implement
 
 **With subagents (M):**
-- Dispatch `shipwright:sw-implementer` with "Plan: `<abs plan path>`. Skill folder: `<skill>`".
+- Dispatch `shipwright:shipwright-implementer` with "Plan: `<abs plan path>`. Skill folder: `<skill>`".
   The plan is its only source of truth; do not paste extra context.
-- UI tasks go to `shipwright:sw-ui-designer` instead, or to both in sequence when a plan mixes UI and logic.
+- UI tasks go to `shipwright:shipwright-ui-designer` instead, or to both in sequence when a plan mixes UI and logic.
 - Without the plugin's agents, use a general-purpose subagent with `templates/implementer-prompt.md`.
 - Keep it addressable, because review fixes go back to the same implementer.
 
@@ -38,7 +38,7 @@ Read `disciplines/tdd.md` now.
 
 - **Surgical diffs.** Every changed line traces to a task. Don't reformat, rename, or "improve" neighboring code.
 - **Unrelated problems:** note them in Implementation Notes, or run `SW defer`. Don't fix them.
-- **Frozen sections are read-only:** the frozen block, `## Verification`, size, and type. `sw.py` hashes them at approval.
+- **Frozen sections are read-only:** the frozen block, `## Verification`, size, and type. `shipwright.py` hashes them at approval.
   - Plan wrong outside the frozen block: amend it and add a `## Plan Change Log` entry.
   - The intent itself is wrong: stop, then follow `phases/clarify.md` step 3.
 - **A check fails unexpectedly:** read `disciplines/debugging.md`. No guess-fixes.

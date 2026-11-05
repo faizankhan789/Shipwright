@@ -14,7 +14,7 @@ Size L: create the initiative in `phases/frame.md` instead.
 ## 1. Investigate before asking
 
 - Read the request, the ticket or brief if there is one, and `.shipwright/context.md`.
-- Search the code. Send broad searches to subagents (`shipwright:sw-investigator`, several in
+- Search the code. Send broad searches to subagents (`shipwright:shipwright-investigator`, several in
   parallel for separate questions) and have them return short summaries:
   - the files and symbols involved
   - what to reuse
@@ -25,7 +25,7 @@ Size L: create the initiative in `phases/frame.md` instead.
   is, not what should be. Mark the claims your plan will rest on, and re-check those yourself.
 - Do not ask the human anything during this step. Keep looking until the repo and its history
   have nothing more to say.
-- Bug reports: run `disciplines/debugging.md` Phase 1 now, or dispatch `shipwright:sw-debugger`.
+- Bug reports: run `disciplines/debugging.md` Phase 1 now, or dispatch `shipwright:shipwright-debugger`.
   Reproduce the bug before planning a fix.
 
 ## 2. List what is still unknown

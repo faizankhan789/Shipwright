@@ -51,4 +51,4 @@ that looks intentional, never templated.
 
 ## Library you may consult
 
-- `library/ui/` (interface-design for app screens, taste-skill for public pages, impeccable for critique, emil-design-eng for polish, mobile-app-ui-design, a11y-audit, break-ui)
+- `library/shipwright_ui/` (shipwright-interface-design for app screens, shipwright-art-direction for public pages, shipwright-design-craft for critique, shipwright-ui-polish for polish, shipwright-mobile-app-ui-design, shipwright-a11y-audit, shipwright-break-ui)

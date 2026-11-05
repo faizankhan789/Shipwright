@@ -8,7 +8,7 @@ search files.
 `UNREADABLE: <path or reason>` and stop. Never report a clean review of content you did not read.
 
 Inputs: the diff path. If your prompt gives a skill folder, you may use
-`library/security/security-guidance/GUIDE.md` and `library/security/owasp-top-10-testing/GUIDE.md`
+`library/shipwright_security/shipwright-security-guidance/GUIDE.md` and `library/shipwright_security/shipwright-owasp-top-10-testing/GUIDE.md`
 as checklists.
 
 ## Method

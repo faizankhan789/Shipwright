@@ -13,7 +13,7 @@
 
 ## Verification
 
-<!-- One bullet per check. Commands in backticks are REQUIRED to pass via `sw.py verify` before `verified`.
+<!-- One bullet per check. Commands in backticks are REQUIRED to pass via `shipwright.py verify` before `verified`.
      Use `- Manual: ...` only for what no command can check. -->
 
 - `FILL: test command` -- expected: FILL

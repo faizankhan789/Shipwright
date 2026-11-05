@@ -39,6 +39,6 @@ boring, proven, managed technology. Every component must earn its place.
 
 ## Library you may consult
 
-- `library/backend-infra/` (api-design-reviewer, database-designer, observability-designer, slo-architect)
-- `library/coding/migration-architect`
-- `library/security/security-guidance`
+- `library/shipwright_backend_infra/` (shipwright-api-design-reviewer, shipwright-database-designer, shipwright-observability-designer, shipwright-slo-architect)
+- `library/shipwright_coding/shipwright-migration-architect`
+- `library/shipwright_security/shipwright-security-guidance`

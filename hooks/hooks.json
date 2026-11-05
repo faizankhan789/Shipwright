@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [ -d \"${CLAUDE_PROJECT_DIR:-.}/.shipwright\" ]; then echo 'Shipwright: this project has open work state in .shipwright/. Before other work, use the shipwright skill and run its `sw.py resume` to see open items and the next step.'; fi",
+            "command": "if [ -d \"${CLAUDE_PROJECT_DIR:-.}/.shipwright\" ]; then echo 'Shipwright: this project has open work state in .shipwright/. Before other work, use the shipwright skill and run its `shipwright.py resume` to see open items and the next step.'; fi",
             "shell": "bash",
             "async": false
           }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PreToolUse guard: Shipwright's gate records are written only by sw.py.
+"""PreToolUse guard: Shipwright's gate records are written only by shipwright.py.
 
 Blocks (exit 2, reason on stderr) when an agent tries to hand-edit:
 - evidence.jsonl, deploys.jsonl, log.md under .shipwright/ (evidence, DORA records, audit trail)
@@ -9,7 +9,7 @@ Blocks (exit 2, reason on stderr) when an agent tries to hand-edit:
 - any shell command that names those files together with a write-capable tool
 
 Plan bodies stay editable with Edit/Write: agents fill plans, tick tasks and append notes.
-This is defense in depth: sw.py also signs and hash-chains its records, so edits that slip past this
+This is defense in depth: shipwright.py also signs and hash-chains its records, so edits that slip past this
 guard are still detected at the gate. Stdlib only; reads the hook payload from stdin.
 """
 import json
@@ -50,36 +50,36 @@ def main() -> None:
 
     if tool == "Bash":
         cmd = ti.get("command", "")
-        # sw.py itself never needs these file names on its command line, so there is no exemption for it
+        # shipwright.py itself never needs these file names on its command line, so there is no exemption for it
         if SHELL_RECORD.search(cmd) and SHELL_WRITE.search(cmd):
-            block("evidence, deploy records, logs and the signing key are written only by sw.py "
-                  "(`sw.py verify`, `sw.py deploy`, `sw.py log`). Read them with cat/grep/jq only.")
+            block("evidence, deploy records, logs and the signing key are written only by shipwright.py "
+                  "(`shipwright.py verify`, `shipwright.py deploy`, `shipwright.py log`). Read them with cat/grep/jq only.")
         if SHELL_PLAN.search(cmd) and ".shipwright" in cmd and SHELL_WRITE.search(cmd):
             block("edit plan bodies with the Edit tool; status and approval change only through "
-                  "`sw.py mark` / `sw.py set`.")
+                  "`shipwright.py mark` / `shipwright.py set`.")
         return
 
     if tool not in ("Write", "Edit", "MultiEdit"):
         return
     path = ti.get("file_path", "")
     if path.endswith("shipwright/key"):
-        block("the signing key is managed by sw.py.")
+        block("the signing key is managed by shipwright.py.")
     if not in_state(path):
         return
     name = Path(path).name
     if name in RECORDS:
-        block(f"{name} is written only by sw.py.")
+        block(f"{name} is written only by shipwright.py.")
     if name != "plan.md":
         return
     try:
         current = Path(path).read_text(encoding="utf-8")
     except OSError:
-        return  # new file: sw.py creates plans; nothing to protect yet
+        return  # new file: shipwright.py creates plans; nothing to protect yet
     end = frontmatter_end(current)
     if tool == "Write":
         new = ti.get("content", "")
         if current[:end] != new[:frontmatter_end(new)]:
-            block("plan frontmatter changes only through `sw.py mark` / `sw.py set`; edit the plan body instead.")
+            block("plan frontmatter changes only through `shipwright.py mark` / `shipwright.py set`; edit the plan body instead.")
         return
     edits = ti.get("edits") or [{"old_string": ti.get("old_string", "")}]
     for e in edits:
@@ -87,7 +87,7 @@ def main() -> None:
         start = current.find(old) if old else -1
         while start != -1:
             if start < end:
-                block("that edit touches the plan frontmatter, which changes only through `sw.py mark` / `sw.py set`.")
+                block("that edit touches the plan frontmatter, which changes only through `shipwright.py mark` / `shipwright.py set`.")
             start = current.find(old, start + 1)
 
 

@@ -18,7 +18,7 @@
         "chooses size S and states why in one line",
         "reproduces the bug with a failing test BEFORE editing production code",
         "logs a HYPOTHESIS line before the fix",
-        "records evidence via sw.py verify; item reaches done (or verified awaiting acceptance)",
+        "records evidence via shipwright.py verify; item reaches done (or verified awaiting acceptance)",
         "diff touches only the function and its test"
       ]
     },
@@ -37,10 +37,10 @@
       "fixture": "a small CLI repo",
       "prompt": "Add --top N to the CLI printing the N most common words, ties alphabetical. Auto mode.",
       "expect": [
-        "plan passes sw.py check and reaches ready without asking the human",
+        "plan passes shipwright.py check and reaches ready without asking the human",
         "tests written before implementation",
         "review lenses run (context-free) and every finding has a triage row",
-        "sw.py mark verified succeeds on first or second attempt with fresh evidence",
+        "shipwright.py mark verified succeeds on first or second attempt with fresh evidence",
         "no edits inside the frozen block after approval"
       ]
     },
@@ -58,7 +58,7 @@
       "fixture": "a repo with .shipwright/ containing one item in status building with a partially ticked plan",
       "prompt": "Pick up where we left off",
       "expect": [
-        "runs sw.py resume first",
+        "runs shipwright.py resume first",
         "continues the open item from build, not from scratch",
         "does not re-ask questions answered in the frozen Decisions"
       ]

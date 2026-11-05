@@ -4,7 +4,7 @@ DORA (DevOps Research and Assessment, Google Cloud) is the largest long-running 
 on software delivery performance. This report checks Shipwright two ways:
 
 1. **By design:** each DORA metric and capability is mapped to the plugin mechanism that moves it, with the gaps stated.
-2. **By measurement:** `sw.py metrics` computes the five DORA metrics from the plugin's own signed records, so the effect can be measured on real projects rather than claimed.
+2. **By measurement:** `shipwright.py metrics` computes the five DORA metrics from the plugin's own signed records, so the effect can be measured on real projects rather than claimed.
 
 **Status: the design is validated; the outcomes are not yet measured.** No project has run Shipwright long
 enough to produce DORA numbers. The measurement plan is in the last section.
@@ -13,8 +13,8 @@ enough to produce DORA numbers. The measurement plan is in the last section.
 
 | Group | Metric | What it is | How Shipwright records it |
 |---|---|---|---|
-| Throughput | Change lead time | Time from change to production | First build → `sw.py deploy` |
-| Throughput | Deployment frequency | Deploys per period | `sw.py deploy` records |
+| Throughput | Change lead time | Time from change to production | First build → `shipwright.py deploy` |
+| Throughput | Deployment frequency | Deploys per period | `shipwright.py deploy` records |
 | Throughput | Failed deployment recovery time | Time from a failed deploy to restored service | `deploy-failed` → `deploy-recovered` |
 | Instability | Change failure rate | Share of deploys that cause a failure needing remediation | `deploy-failed` / deploys |
 | Instability | Deployment rework rate | Share of deploys that are unplanned fixes for incidents | `--rework`, or auto when every deployed item is a bugfix with `fixes:` |
@@ -60,21 +60,21 @@ its enforcement on the stability side: tests, evidence, review, and frozen inten
 | Documentation quality | Plans, ADRs, context.md, decision.md, all in the repo | Strong |
 | Loosely coupled architecture | Council on boundaries and contracts, architecture template | Strong (by design) |
 | Monitoring and observability | Well-Architected review in decisions; observability guides in the library | Partial |
-| Continuous integration | Runs the project's checks; doesn't create CI (`library/backend-infra/ci-cd-pipeline-builder` can) | Partial |
+| Continuous integration | Runs the project's checks; doesn't create CI (`library/shipwright_backend_infra/shipwright-ci-cd-pipeline-builder` can) | Partial |
 | Trunk-based development | Not enforced | Gap |
 | Deployment automation | Not provided | Gap (out of scope) |
 
 ## Measurement plan (turning design into evidence)
 
-1. **Record every production deploy:** `sw.py deploy --items <ids>`. On an incident, `sw.py deploy-failed <D>`, then
-   `deploy-recovered <D>` once service is restored. Link fix items with `sw.py set <fix> fixes=<id>`.
+1. **Record every production deploy:** `shipwright.py deploy --items <ids>`. On an incident, `shipwright.py deploy-failed <D>`, then
+   `deploy-recovered <D>` once service is restored. Link fix items with `shipwright.py set <fix> fixes=<id>`.
 2. **Baseline:** 30 days on a project or team without Shipwright, using the same definitions (from CI/CD history).
-3. **Treatment:** 30 days with Shipwright, then `sw.py metrics --days 30`.
+3. **Treatment:** 30 days with Shipwright, then `shipwright.py metrics --days 30`.
 4. **Judge by the pair.** Stability (change failure rate and rework rate) should drop without lead time rising more than the rework saved. Watch the leading indicators every week:
    - batch size
    - review loopbacks per item
    - escaped defects
-5. **Report it in the initiative retro.** If change failure rate doesn't fall, the gates aren't biting. Read `sw.py friction` and the triage logs to find out why.
+5. **Report it in the initiative retro.** If change failure rate doesn't fall, the gates aren't biting. Read `shipwright.py friction` and the triage logs to find out why.
 
 ## Sources
 

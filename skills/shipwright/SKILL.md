@@ -15,13 +15,13 @@ session can resume, and a script enforces the gates that prose alone cannot.
 1. **No build before intent is clear.** Investigate first; ask only what the code cannot answer. Open Questions must be empty before building.
 2. **No production code without a failing test first** — wherever a test can run. Otherwise, name the check that replaces it in the plan.
 3. **No fix without a root cause.** Bugs go through `disciplines/debugging.md` before any plan.
-4. **No "done" without fresh evidence.** Only `sw.py verify` records evidence; `sw.py mark ... verified` refuses without it.
+4. **No "done" without fresh evidence.** Only `shipwright.py verify` records evidence; `shipwright.py mark ... verified` refuses without it.
 5. **Write state as you go.** Decisions, rulings, and surprises go to disk the moment they happen, not at the end.
 
 ## Tooling
 
 `SW` below is shorthand, not a shell variable. Always type the full command,
-`python3 <absolute path of this skill's folder>/scripts/sw.py`. Run `SW <command> -h` for flags.
+`python3 <absolute path of this skill's folder>/scripts/shipwright.py`. Run `SW <command> -h` for flags.
 
 | Need | Command |
 |---|---|
@@ -90,7 +90,7 @@ mobile, backend-infra, ai-ml, integrations, and product. They never trigger on t
 
 ## What the script enforces
 
-These are not suggestions. `sw.py` refuses the status change until they hold:
+These are not suggestions. `shipwright.py` refuses the status change until they hold:
 - **`ready`:** a named approver (`--approved-by`) for M, no placeholders, Open Questions empty, Given/When/Then ACs, a file path on every task, a Verification check listed, and a risk score.
   - Approval hashes the intent, size, type, and Verification. Any later edit to them is caught.
 - **`building`:** a current approval and a clean git tree.
@@ -123,18 +123,18 @@ gives absolute paths: the plan or diff, and `Skill folder: <this skill's folder>
 
 | Agent (subagent type) | Phase | Give it |
 |---|---|---|
-| `shipwright:sw-investigator` | Clarify | the questions to answer |
-| `shipwright:sw-principal-architect`, `shipwright:sw-ai-engineer`, `shipwright:sw-staff-engineer`, `shipwright:sw-design-lead`, `shipwright:sw-red-team`, `shipwright:sw-council-judge` | Council | the round number and the council folder (they debate in 3 rounds; `phases/council.md`) |
-| `shipwright:sw-implementer` | Build | the plan path |
-| `shipwright:sw-ui-designer` | Build (UI tasks) | the plan path, plus which tasks are UI |
-| `shipwright:sw-debugger` | Any bug or unexpected failure | the symptom, the repro steps, and the item id for `HYPOTHESIS:` logging |
-| `shipwright:sw-blind-reviewer` | Review | the diff path, and the finding floor N |
-| `shipwright:sw-edge-case-reviewer` | Review | the diff path, and the plan as `claims_file` |
-| `shipwright:sw-verification-gap-reviewer` | Review | the diff path |
-| `shipwright:sw-intent-reviewer` | Review | the verbatim Intent block, and the diff path |
-| `shipwright:sw-rules-reviewer` | Review | the diff path, and the project root |
-| `shipwright:sw-ui-reviewer` | Review (UI diffs) | the diff path, and screenshot paths |
-| `shipwright:sw-security-reviewer` | Review (trust boundaries touched, or high risk) | the diff path |
+| `shipwright:shipwright-investigator` | Clarify | the questions to answer |
+| `shipwright:shipwright-principal-architect`, `shipwright:shipwright-ai-engineer`, `shipwright:shipwright-staff-engineer`, `shipwright:shipwright-design-lead`, `shipwright:shipwright-red-team`, `shipwright:shipwright-council-judge` | Council | the round number and the council folder (they debate in 3 rounds; `phases/council.md`) |
+| `shipwright:shipwright-implementer` | Build | the plan path |
+| `shipwright:shipwright-ui-designer` | Build (UI tasks) | the plan path, plus which tasks are UI |
+| `shipwright:shipwright-debugger` | Any bug or unexpected failure | the symptom, the repro steps, and the item id for `HYPOTHESIS:` logging |
+| `shipwright:shipwright-blind-reviewer` | Review | the diff path, and the finding floor N |
+| `shipwright:shipwright-edge-case-reviewer` | Review | the diff path, and the plan as `claims_file` |
+| `shipwright:shipwright-verification-gap-reviewer` | Review | the diff path |
+| `shipwright:shipwright-intent-reviewer` | Review | the verbatim Intent block, and the diff path |
+| `shipwright:shipwright-rules-reviewer` | Review | the diff path, and the project root |
+| `shipwright:shipwright-ui-reviewer` | Review (UI diffs) | the diff path, and screenshot paths |
+| `shipwright:shipwright-security-reviewer` | Review (trust boundaries touched, or high risk) | the diff path |
 
 **If the agents aren't available** (the skill was installed without the plugin), dispatch a
 general-purpose subagent with: "Read `<skill>/lenses/<lens>.md` (or

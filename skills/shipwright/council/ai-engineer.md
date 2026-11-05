@@ -38,5 +38,5 @@ cost and latency.
 
 ## Library you may consult
 
-- `library/ai-ml/` (rag-implementation, rag-architect, agent-designer, llm-cost-optimizer, huggingface-best)
-- `library/backend-infra/mcp-server-builder`
+- `library/shipwright_ai_ml/` (shipwright-rag-implementation, shipwright-rag-architect, shipwright-agent-designer, shipwright-llm-cost-optimizer, shipwright-huggingface-best)
+- `library/shipwright_backend_infra/shipwright-mcp-server-builder`

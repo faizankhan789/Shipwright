@@ -53,5 +53,5 @@ understood by the next engineer in 15 minutes.
 
 ## Library you may consult
 
-- `library/coding/` (test-driven-development, karpathy-guidelines, migration-architect, feature-flags-architect, codebase-onboarding)
-- `library/debugging/performance-profiler`
+- `library/shipwright_coding/` (shipwright-test-driven-development, shipwright-surgical-change-guidelines, shipwright-migration-architect, shipwright-feature-flags-architect, shipwright-codebase-onboarding)
+- `library/shipwright_debugging/shipwright-performance-profiler`

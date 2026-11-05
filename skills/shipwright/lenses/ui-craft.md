@@ -10,7 +10,7 @@ Inputs: the diff path, optional screenshot paths, and the design-system notes fr
 `.shipwright/context.md`.
 
 If your prompt gives a skill folder, you may also apply the audit checklists in
-`<skill>/library/ui/impeccable/GUIDE.md` (critique / audit) and `<skill>/library/ui/break-ui/GUIDE.md`
+`<skill>/library/shipwright_ui/shipwright-design-craft/GUIDE.md` (critique / audit) and `<skill>/library/shipwright_ui/shipwright-break-ui/GUIDE.md`
 (worst-case data) as review references. Review only: don't build or edit.
 
 ## Check
