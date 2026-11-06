@@ -3,6 +3,17 @@
 The library bundles 168 specialist guides in 10 categories. Shipwright's own disciplines are
 the floor and always apply; a guide adds depth when the work calls for it.
 
+**How to choose (by context, two steps):** read the section map at the top of `library/INDEX.md`, pick the
+section that fits the request's meaning, then the guide whose "Use for" line fits. `shipwright.py route "<task>"
+--top 5` gives a keyword shortlist as a hint; log your final pick with `route --use <section/guide> --id <item>`.
+
+**The keyword engine:** `shipwright.py route "<task in your own words>" --id <item> --top 5`.
+- It matches the whole request against **every** guide in `library/catalog.json` (all 168, by name,
+  description and headings, with developer-synonym expansion). The curated rules in `routing.json` add a
+  precision boost. It logs `GUIDE:` lines. The prompt hook uses the same engine.
+- Treat the result as a ranked shortlist and pick by context. If a better guide is in `INDEX.md`, log your
+  own pick: `shipwright.py route --use <section/guide> --id <item>`.
+
 **How to load one:**
 1. Read `library/<category>/<name>/GUIDE.md`.
 2. Follow only the references it points to that you need. Paths inside a guide are relative to its own folder, and its scripts run from there.
@@ -75,7 +86,7 @@ the floor and always apply; a guide adds depth when the work calls for it.
 | Observability, SLOs, runbooks | Build | `shipwright_backend_infra/shipwright-observability-designer`, `shipwright_backend_infra/shipwright-slo-architect`, `shipwright_backend_infra/shipwright-runbook-generator` |
 | MCP server | Build | `shipwright_backend_infra/shipwright-mcp-server-builder` |
 | RAG, agents, LLM cost | Build | `shipwright_ai_ml/shipwright-rag-implementation`, `shipwright_ai_ml/shipwright-rag-architect`, `shipwright_ai_ml/shipwright-agent-designer`, `shipwright_ai_ml/shipwright-llm-cost-optimizer` |
-| Hugging Face models, training, Spaces | Build | `shipwright_ai_ml/shipwright-huggingface-best` first, then the specific `ai-ml/huggingface-*` / `shipwright_ai_ml/shipwright-trl-training` guide |
+| Hugging Face models, training, Spaces | Build | `shipwright_ai_ml/shipwright-huggingface-best` first, then the specific `shipwright_ai_ml/shipwright-huggingface-*` / `shipwright_ai_ml/shipwright-trl-training` guide |
 | Payments with Stripe | Plan → Build | `shipwright_integrations/shipwright-stripe-best-practices`, `shipwright_integrations/shipwright-stripe-docs` |
 | Android / Kotlin / Compose | Build | `shipwright_mobile/shipwright-android-dev` (router), `shipwright_mobile/shipwright-compose`, `shipwright_mobile/shipwright-kotlin-coroutines`, `shipwright_mobile/shipwright-android-data-layer`, `shipwright_mobile/shipwright-koin` |
 | Swift / iOS | Build | `shipwright_mobile/shipwright-write-swift` |

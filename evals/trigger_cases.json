@@ -1,0 +1,364 @@
+{
+ "cases": [
+  {
+   "prompt": "Add rate limiting to the /login endpoint",
+   "trigger": true
+  },
+  {
+   "prompt": "The export button crashes on empty reports, fix it",
+   "trigger": true
+  },
+  {
+   "prompt": "Build me a habit tracker web app",
+   "trigger": true
+  },
+  {
+   "prompt": "Continue where we left off on the billing work",
+   "trigger": true
+  },
+  {
+   "prompt": "Fix the 500 error when users log in",
+   "trigger": true
+  },
+  {
+   "prompt": "The dashboard table is slow with 10k rows",
+   "trigger": true
+  },
+  {
+   "prompt": "Build a landing page for my coffee shop",
+   "trigger": true
+  },
+  {
+   "prompt": "Create an admin dashboard for managing users",
+   "trigger": true
+  },
+  {
+   "prompt": "Design the architecture for a multi-tenant SaaS billing system",
+   "trigger": true
+  },
+  {
+   "prompt": "Add Stripe subscriptions to checkout",
+   "trigger": true
+  },
+  {
+   "prompt": "Write unit tests for the parser module",
+   "trigger": true
+  },
+  {
+   "prompt": "Refactor the payment service to remove duplication",
+   "trigger": true
+  },
+  {
+   "prompt": "Set up a GitHub Actions pipeline that runs tests and builds the Docker image",
+   "trigger": true
+  },
+  {
+   "prompt": "Implement a RAG chatbot over our docs",
+   "trigger": true
+  },
+  {
+   "prompt": "Our Android app crashes with an ANR on startup",
+   "trigger": true
+  },
+  {
+   "prompt": "Make the settings page look less generic and more premium",
+   "trigger": true
+  },
+  {
+   "prompt": "Add swipe to delete on the mobile list",
+   "trigger": true
+  },
+  {
+   "prompt": "There's a memory leak in the websocket server",
+   "trigger": true
+  },
+  {
+   "prompt": "Implement the Figma design for the onboarding flow",
+   "trigger": true
+  },
+  {
+   "prompt": "Migrate the users table to add an email_verified column",
+   "trigger": true
+  },
+  {
+   "prompt": "Add e2e tests for the signup flow with Playwright",
+   "trigger": true
+  },
+  {
+   "prompt": "Plan the system architecture for a real-time chat platform",
+   "trigger": true
+  },
+  {
+   "prompt": "Create an MCP server that exposes our ticket system",
+   "trigger": true
+  },
+  {
+   "prompt": "Fine-tune a small model on our support tickets with Hugging Face",
+   "trigger": true
+  },
+  {
+   "prompt": "Optimize the SQL query behind the orders report",
+   "trigger": true
+  },
+  {
+   "prompt": "The animation on the modal is janky",
+   "trigger": true
+  },
+  {
+   "prompt": "Implement JWT authentication for the API",
+   "trigger": true
+  },
+  {
+   "prompt": "Build an iOS widget in SwiftUI that shows today's tasks",
+   "trigger": true
+  },
+  {
+   "prompt": "Add toast notifications when a save succeeds",
+   "trigger": true
+  },
+  {
+   "prompt": "Address the review comments on my PR",
+   "trigger": true
+  },
+  {
+   "prompt": "Pick up where we left off yesterday",
+   "trigger": true
+  },
+  {
+   "prompt": "Deploy the new version to staging and write the changelog",
+   "trigger": true
+  },
+  {
+   "prompt": "The login form doesn't work on Safari",
+   "trigger": true
+  },
+  {
+   "prompt": "Our checkout page takes 6 seconds to load, speed it up",
+   "trigger": true
+  },
+  {
+   "prompt": "Implement a feature flag for the new search",
+   "trigger": true
+  },
+  {
+   "prompt": "What does this regex do?",
+   "trigger": false
+  },
+  {
+   "prompt": "Explain how our auth middleware works",
+   "trigger": false
+  },
+  {
+   "prompt": "Rename tmp to buffer on line 12",
+   "trigger": false
+  },
+  {
+   "prompt": "What's the difference between TCP and UDP?",
+   "trigger": false
+  },
+  {
+   "prompt": "Summarize this file for me",
+   "trigger": false
+  },
+  {
+   "prompt": "Why is the sky blue?",
+   "trigger": false
+  },
+  {
+   "prompt": "/help",
+   "trigger": false
+  },
+  {
+   "prompt": "thanks!",
+   "trigger": false
+  },
+  {
+   "prompt": "Which database should I learn first?",
+   "trigger": false
+  },
+  {
+   "prompt": "How does React's useEffect work?",
+   "trigger": false
+  },
+  {
+   "prompt": "Describe the folder structure of this repo",
+   "trigger": false
+  },
+  {
+   "prompt": "Compare Postgres and MySQL for analytics",
+   "trigger": false
+  },
+  {
+   "prompt": "Who wrote this function?",
+   "trigger": false
+  },
+  {
+   "prompt": "Is there a CHANGELOG in this project?",
+   "trigger": false
+  },
+  {
+   "prompt": "Tell me a joke about programmers",
+   "trigger": false
+  },
+  {
+   "prompt": "getting TypeError: Cannot read properties of undefined (reading 'map') in ProductList whenever the api returns an empty response, fix it",
+   "trigger": true
+  },
+  {
+   "prompt": "checkout page takes like 6s to load on slow 3g, lighthouse score is 31. can u speed it up",
+   "trigger": true
+  },
+  {
+   "prompt": "our node worker's RSS keeps climbing until it gets OOM killed after ~12h. find the leak and fix it",
+   "trigger": true
+  },
+  {
+   "prompt": "sidebar slide in animation stutters really bad on safari, make it smooth 60fps",
+   "trigger": true
+  },
+  {
+   "prompt": "build a landing page for our new invoicing app - hero, pricing table, faq, footer. nextjs + tailwind",
+   "trigger": true
+  },
+  {
+   "prompt": "add a settings screen where users can manage their notification preferences (email/push/sms toggles per event type)",
+   "trigger": true
+  },
+  {
+   "prompt": "the admin dashboard looks super generic, like every AI template ever. make it look less bland and more polished",
+   "trigger": true
+  },
+  {
+   "prompt": "implement swipe-to-dismiss on the bottom sheet in the react native app, should snap back if you dont drag far enough",
+   "trigger": true
+  },
+  {
+   "prompt": "turn this into a react component pls https://www.figma.com/design/aB12cD/Onboarding?node-id=12-44",
+   "trigger": true
+  },
+  {
+   "prompt": "signup form is unusable with voiceover, labels missing everywhere and focus jumps around. fix the a11y",
+   "trigger": true
+  },
+  {
+   "prompt": "write unit tests for utils/dateParse.ts, coverage is basically zero rn",
+   "trigger": true
+  },
+  {
+   "prompt": "set up playwright e2e tests for the login -> add to cart -> checkout flow",
+   "trigger": true
+  },
+  {
+   "prompt": "github actions workflow keeps failing on the lint step since yesterday's merge, fix pls",
+   "trigger": true
+  },
+  {
+   "prompt": "dockerize the fastapi service, multistage build, want the image under 200mb",
+   "trigger": true
+  },
+  {
+   "prompt": "pods going into CrashLoopBackOff after the helm upgrade to 1.8, debug and fix",
+   "trigger": true
+  },
+  {
+   "prompt": "write terraform for an s3 bucket + cloudfront distribution for the static docs site, with OAC",
+   "trigger": true
+  },
+  {
+   "prompt": "add an archived_at column to projects, write the migration and backfill from the old is_archived flag",
+   "trigger": true
+  },
+  {
+   "prompt": "design the api for team invites - create invite, accept, revoke, list pending. REST, versioned",
+   "trigger": true
+  },
+  {
+   "prompt": "put the new checkout flow behind a feature flag so we can roll it out to 10% of users first",
+   "trigger": true
+  },
+  {
+   "prompt": "implement google oauth login with refresh token rotation, sessions currently just use a jwt in localstorage",
+   "trigger": true
+  },
+  {
+   "prompt": "npm audit shows 14 high severity vulns, upgrade the deps and fix whatever breaks",
+   "trigger": true
+  },
+  {
+   "prompt": "build a rag chatbot over our /docs folder using pgvector and openai embeddings",
+   "trigger": true
+  },
+  {
+   "prompt": "integrate stripe subscriptions w/ monthly + annual plans and handle the webhooks for failed payments",
+   "trigger": true
+  },
+  {
+   "prompt": "refactor LoginActivity to mvvm + jetpack compose, its a 1500 line mess",
+   "trigger": true
+  },
+  {
+   "prompt": "add face id unlock to the swiftui app, fall back to passcode",
+   "trigger": true
+  },
+  {
+   "prompt": "cut the v2.3.0 release and ship it to prod",
+   "trigger": true
+  },
+  {
+   "prompt": "address the review comments on PR #482",
+   "trigger": true
+  },
+  {
+   "prompt": "ok lets pick up where we left off yesterday on the csv export feature",
+   "trigger": true
+  },
+  {
+   "prompt": "why did the y2k38 bug happen in the first place, was it just 32-bit time_t?",
+   "trigger": false
+  },
+  {
+   "prompt": "whats the difference between a fix and a hotfix branch in gitflow",
+   "trigger": false
+  },
+  {
+   "prompt": "can you explain how the memory leak fix in PR #210 works? not asking to change anything, just want to understand it",
+   "trigger": false
+  },
+  {
+   "prompt": "how come the deploy failed last friday? just curious, someone already fixed it",
+   "trigger": false
+  },
+  {
+   "prompt": "react vs svelte for a small internal tool, which would you pick",
+   "trigger": false
+  },
+  {
+   "prompt": "postgres or mongo for storing event logs? pros/cons",
+   "trigger": false
+  },
+  {
+   "prompt": "lol thx that worked, ur the best",
+   "trigger": false
+  },
+  {
+   "prompt": "rename `usr` to `user` on line 4 of auth.ts",
+   "trigger": false
+  },
+  {
+   "prompt": "change TIMEOUT = 30 to TIMEOUT = 60 in config.py",
+   "trigger": false
+  },
+  {
+   "prompt": "/review",
+   "trigger": false
+  },
+  {
+   "prompt": "/clear",
+   "trigger": false
+  },
+  {
+   "prompt": "good morning! hows ur day going",
+   "trigger": false
+  }
+ ]
+}

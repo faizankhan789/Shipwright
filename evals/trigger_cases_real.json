@@ -1,0 +1,164 @@
+{
+ "cases": [
+  {
+   "prompt": "Our background worker starts the week at about 300MB and by Thursday the box is swapping and we have to bounce it. Track down what keeps piling up and stop it.",
+   "trigger": true
+  },
+  {
+   "prompt": "Customers with a long purchase history wait around eight seconds for their order history page to show anything. Make it come up quickly.",
+   "trigger": true
+  },
+  {
+   "prompt": "Every pull request sits for forty minutes waiting for the checks to go green, and most of that is reinstalling the same packages each time. Cut that wait down.",
+   "trigger": true
+  },
+  {
+   "prompt": "When the side drawer slides open on cheaper laptops it stutters like a slideshow. Make it glide smoothly.",
+   "trigger": true
+  },
+  {
+   "prompt": "We need the page people land on when they click our ads: explain what the product does, show the three plans, and get them onto the waitlist. Build it.",
+   "trigger": true
+  },
+  {
+   "prompt": "Inside the product, workspace admins need one place to see everyone on their team, change what each person is allowed to do, and remove people. Put that screen together.",
+   "trigger": true
+  },
+  {
+   "prompt": "People keep telling us our checkout looks amateur and cluttered. Go through it and tighten the spacing, hierarchy and type until it feels trustworthy.",
+   "trigger": true
+  },
+  {
+   "prompt": "On the phone app, people want to slide a message sideways to archive it and drag the inbox down to fetch new mail. Wire both of those up.",
+   "trigger": true
+  },
+  {
+   "prompt": "Our designer finished the new settings layout in the shared design file. Turn that frame into real components that match it pixel for pixel.",
+   "trigger": true
+  },
+  {
+   "prompt": "When someone saves their profile nothing visibly happens, so they hit save five times. Add a small message that pops up in the corner to confirm it and then fades away.",
+   "trigger": true
+  },
+  {
+   "prompt": "A customer who gets around using only the keyboard and a screen reader says they can't get past our signup form. Fix it so they can complete it.",
+   "trigger": true
+  },
+  {
+   "prompt": "Nothing protects the pricing module right now; anyone could break the discount rules and we'd only find out from angry customers. Add small isolated checks for each function in it.",
+   "trigger": true
+  },
+  {
+   "prompt": "Set up something that opens a real browser, logs in as a shopper, adds an item to the cart and checks out, so we hear about it the moment that flow breaks.",
+   "trigger": true
+  },
+  {
+   "prompt": "Write checks that hit every backend endpoint with both valid and malformed payloads and confirm the status codes and response bodies are what the frontend expects.",
+   "trigger": true
+  },
+  {
+   "prompt": "New hires lose a whole day installing the right database, cache and language version before the app even starts. Package it so it runs the same on anyone's laptop with a single command.",
+   "trigger": true
+  },
+  {
+   "prompt": "During traffic spikes the service falls over because it's stuck at three copies. Configure the cluster so it spins up more copies automatically when load climbs and replaces ones that stop responding.",
+   "trigger": true
+  },
+  {
+   "prompt": "Right now someone clicks around the cloud console to create our buckets and databases and nobody remembers the settings. Capture all of it as files we can review and use to rebuild staging from scratch.",
+   "trigger": true
+  },
+  {
+   "prompt": "The monthly sales-by-region report hangs and then gets cut off by the database after a minute. Rewrite the query so it actually finishes.",
+   "trigger": true
+  },
+  {
+   "prompt": "Customers need to be able to save more than one shipping address, but today it's a single field on their account record. Change how that's stored and carry the existing addresses over without taking the site down.",
+   "trigger": true
+  },
+  {
+   "prompt": "We want the new search to reach 5% of users first, and to be able to switch it off instantly without shipping a new build. Set that up.",
+   "trigger": true
+  },
+  {
+   "prompt": "If someone changes their password on their phone, their laptop stays logged in forever. Make every other session end when the password changes.",
+   "trigger": true
+  },
+  {
+   "prompt": "Someone spotted the production database password sitting in plain text in a config file in the repo. Get it out of there, load it from the environment instead, and scrub it from history.",
+   "trigger": true
+  },
+  {
+   "prompt": "Support wants an assistant that answers customer questions using only our 400 help-center articles and says which article each answer came from, instead of making things up. Build it.",
+   "trigger": true
+  },
+  {
+   "prompt": "Customers should be billed every month for their plan, be able to move up or down a tier mid-cycle and only pay the difference, and get an email when their card is declined. Hook all of that up.",
+   "trigger": true
+  },
+  {
+   "prompt": "On Pixel phones the photo editor screen wipes out the user's edits and sometimes crashes when they turn the phone sideways. Fix it.",
+   "trigger": true
+  },
+  {
+   "prompt": "Since we bumped to the latest Xcode, tapping Share on iPhone does nothing at all. Figure out why and get the share sheet appearing again.",
+   "trigger": true
+  },
+  {
+   "prompt": "Time to put out 2.4: bump the version, write up what changed since 2.3, tag it, and get it live for customers.",
+   "trigger": true
+  },
+  {
+   "prompt": "The reviewer left about a dozen comments on my pull request about naming and missing error handling. Work through each one and push the fixes.",
+   "trigger": true
+  },
+  {
+   "prompt": "Why does a server usually get slower over the course of a week until a restart fixes it? I just want to understand the common causes, not change anything.",
+   "trigger": false
+  },
+  {
+   "prompt": "Should a four-person team keep creating cloud resources by hand in the console or move to defining them in code? What are the tradeoffs?",
+   "trigger": false
+  },
+  {
+   "prompt": "Show me what's in the workflow file that runs our automated checks. Don't change anything.",
+   "trigger": false
+  },
+  {
+   "prompt": "In the README, change 'Postgres 14' to 'Postgres 16' on the install line.",
+   "trigger": false
+  },
+  {
+   "prompt": "/release-notes 2.4",
+   "trigger": false
+  },
+  {
+   "prompt": "For our checkout, which is better: sending people to the card processor's hosted payment page, or embedding their card fields in our own form?",
+   "trigger": false
+  },
+  {
+   "prompt": "Can you explain why an Android screen loses what the user typed when the phone is rotated?",
+   "trigger": false
+  },
+  {
+   "prompt": "Just list the open review comments on my pull request so I can read them; I'll deal with them myself.",
+   "trigger": false
+  },
+  {
+   "prompt": "What do people mean when they say a rollout toggle should be short-lived?",
+   "trigger": false
+  },
+  {
+   "prompt": "Thanks, that worked perfectly! Have a good weekend.",
+   "trigger": false
+  },
+  {
+   "prompt": "Ha, the build bot started signing its log messages as 'Sir Lint-a-lot'. Someone on the team has jokes.",
+   "trigger": false
+  },
+  {
+   "prompt": "What's a good book for getting better at system design interviews?",
+   "trigger": false
+  }
+ ]
+}

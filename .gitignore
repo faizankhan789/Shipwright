@@ -5,3 +5,6 @@ __pycache__/
 node_modules/
 # Shipwright work state belongs to the projects that use the plugin, not to the plugin repo
 .shipwright/
+# local tool state and eval run output
+.serena/
+evals/results/

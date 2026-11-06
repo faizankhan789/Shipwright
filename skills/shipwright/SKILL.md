@@ -1,6 +1,6 @@
 ---
 name: shipwright
-description: Use when the user hands over a feature, bug fix, refactor, or whole product to build and expects working, verified code; when asked to analyze a problem, design or architect a solution, or plan a system before coding; when resuming earlier build work; when asked to plan, slice, or review a change; or when the user says "shipwright". Not for questions, explanations, or one-line edits the user is dictating.
+description: Use when the user hands over a feature, bug fix, refactor, tests to write, migration, or whole product to build and expects working, verified code; when asked to analyze a problem, design or architect a solution, or plan a system before coding; when resuming earlier build work; when asked to plan, slice, or review a change; or when the user says "shipwright". Not for questions, explanations, or one-line edits the user is dictating.
 ---
 
 # Shipwright
@@ -21,7 +21,7 @@ session can resume, and a script enforces the gates that prose alone cannot.
 ## Tooling
 
 `SW` below is shorthand, not a shell variable. Always type the full command,
-`python3 <absolute path of this skill's folder>/scripts/shipwright.py`. Run `SW <command> -h` for flags.
+`python3 <absolute path of this skill's folder>/scripts/shipwright.py` (Windows: `python` or `py`). Run `SW <command> -h` for flags.
 
 | Need | Command |
 |---|---|
@@ -35,6 +35,7 @@ session can resume, and a script enforces the gates that prose alone cannot.
 | Diff for reviewers | `SW diff <id>` · whole initiative: `SW diff --initiative <slug>` |
 | Log a review finding | `SW triage <id> --lens L --location F:N --claim "..." --verdict V --route R --evidence "..."` |
 | Log a line | `SW log <id> "DECISION: ..."` (also `RULING:`, `HYPOTHESIS:`, `SURPRISE:`) |
+| Pick library guides | `SW route "<task>" --id <id>` (deterministic; logs `GUIDE:` lines; UI work must have one before `verified`) |
 | Expert council | `SW council new "<question>"` · `SW council check <n> [--brief]` |
 | Record a decision | `SW adr "<title>"` |
 | Defer work | `SW defer "<summary>" --source <id> --evidence "..."` (both flags required) |
@@ -85,22 +86,16 @@ Disciplines, loaded when they apply: `disciplines/tdd.md` (every build), `discip
 ## Library (bundled specialist guides)
 
 `library/` holds 168 bundled guides in 10 categories: ui, coding, debugging, testing, security,
-mobile, backend-infra, ai-ml, integrations, and product. They never trigger on their own. Read
-`library/ROUTING.md` before loading one; its precedence rules keep Shipwright in charge.
+mobile, backend-infra, ai-ml, integrations, and product. They never trigger on their own. Choose by context: read `library/INDEX.md` (section map, then one line per
+guide), take `SW route "<task>"` as a hint, and log your pick with `SW route --use <section/guide> --id <id>`.
+`library/ROUTING.md` has the precedence rules.
 
 ## What the script enforces
 
-These are not suggestions. `shipwright.py` refuses the status change until they hold:
-- **`ready`:** a named approver (`--approved-by`) for M, no placeholders, Open Questions empty, Given/When/Then ACs, a file path on every task, a Verification check listed, and a risk score.
-  - Approval hashes the intent, size, type, and Verification. Any later edit to them is caught.
-- **`building`:** a current approval and a clean git tree.
-  - Every re-entry counts toward the 5-loop cap.
-- **`verified`:**
-  - every planned check has a passing run *against the current code*
-  - a recorded red run (feature or bugfix)
-  - a logged `HYPOTHESIS:` (bugfix)
-  - a manual check with an artifact, if the plan lists one
-  - review triage with no pending rows (M)
+`shipwright.py` refuses the status change until these hold:
+- **`ready`:** a named approver (M); no placeholders or Open Questions; Given/When/Then ACs; file paths on tasks; a Verification check; a risk score. Intent, ACs, size, type and Verification are then hashed.
+- **`building`:** current approval, clean git tree; every re-entry counts toward the 5-loop cap.
+- **`verified`:** passing runs of every planned check against the current code; a red run (feature/bugfix); a `HYPOTHESIS:` (bugfix); manual-check artifacts; a design guide, a passing design check and a screenshot for UI changes; complete triage (M).
 - **`done`:** the same gates, re-checked.
 
 ## Modes
@@ -113,8 +108,7 @@ These are not suggestions. `shipwright.py` refuses the status change until they 
 
 ## Working with other skills
 
-- While Shipwright runs, it owns the workflow. Do not start other process skills (brainstorming, plan-writing, plan-executing) in parallel.
-- Prefer the bundled library for design, debugging, and testing depth. Other installed domain skills (a framework guide, a security scanner) are welcome inside a phase.
+- Shipwright owns the workflow: no other process skills in parallel. Its library replaces overlapping design, debugging and testing skills; unrelated domain skills are fine inside a phase.
 
 ## Internal agents
 

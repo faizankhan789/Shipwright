@@ -12,6 +12,9 @@ Their browser inspectors and detectors count as checks: run them through `SW ver
 
 ## Before building
 
+- Run `SW route "<the UI you are building>" --id <id>` and load the design guide it names. `verified`
+  refuses UI changes when no `shipwright_ui` guide was logged.
+
 - Read `## Design system` in `.shipwright/context.md`. If the project keeps design-craft's
   `DESIGN.md` / `PRODUCT.md`, context.md points to them, so there is one source of truth.
   - Reuse the existing tokens, components, and patterns.
@@ -57,8 +60,15 @@ Their browser inspectors and detectors count as checks: run them through `SW ver
 **Put these checks in the plan's `## Verification`,** so the gate requires them. `<skill>` is
 this skill's absolute folder.
 
-**Any UI change:**
-- `<skill>/library/shipwright_ui/shipwright-design-craft/scripts/shipwright-design detect <changed UI files or dir>`: exit 0 means no anti-patterns.
+**Any UI change (required):**
+- `SW verify <id> -- python3 <skill>/scripts/shipwright.py design-check <changed UI files or dir>`.
+  It runs the compiled design engine on all UI files and the JSX rules on `.tsx`/`.jsx`. Exit 0 means clean.
+  `verified` refuses until every changed UI file has a passing run on the current code.
+- A hook also runs this detector after each edit to a UI file and reports findings straight away, so fix them as you go.
+- For a false positive, add a `shipwright-disable` comment with the reason.
+- `.tsx`/`.jsx` checks see what is on each element: inline styles, Tailwind colour pairs, labels, alt text. Colours
+  set in other components or CSS files can't be resolved without rendering, so for full contrast and layout rules
+  also run `shipwright-design detect <dev-server URL or built .html>`.
 
 **Public pages** (landing, marketing, portfolio):
 - `node <skill>/library/shipwright_ui/shipwright-art-direction/scripts/inspect.mjs <url or file.html>`: no FAIL rows. It screenshots at 1440, 768, and 390.

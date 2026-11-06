@@ -10,9 +10,12 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import hashlib
+import math
 import hmac
 import os
+import platform
 import secrets
+import shlex
 import statistics
 import json
 import re
@@ -23,6 +26,7 @@ from pathlib import Path
 STATE_DIR = ".shipwright"
 SKILL_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES = SKILL_DIR / "templates"
+LIBRARY_DIR = SKILL_DIR / "library"
 
 TRANSITIONS = {
     "draft": {"ready", "blocked", "dropped"},
@@ -231,9 +235,9 @@ def key_bytes() -> bytes:
     path = Path(os.environ.get("SHIPWRIGHT_KEY_FILE") or Path.home() / ".config" / "shipwright" / "key")
     if not path.exists():
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(secrets.token_hex(32))
+        path.write_text(secrets.token_hex(32), encoding="utf-8")
         path.chmod(0o600)
-    return path.read_text().strip().encode()
+    return path.read_text(encoding="utf-8").strip().encode()
 
 
 def mac_of(rec: dict) -> str:
@@ -371,16 +375,124 @@ def change_size(root: Path, base: str) -> tuple[int, int]:
     return len(files), lines
 
 
+DETECT_FILE_RE = re.compile(r"\.(tsx|jsx|vue|svelte|astro|html|css|scss|sass|less)$", re.I)
+DESIGN_SCRIPTS = LIBRARY_DIR / "shipwright_ui" / "shipwright-design-craft" / "scripts"
+DESIGN_SKIP_DIRS = {"node_modules", "dist", "build", ".next", ".nuxt", ".shipwright", ".shipdesign", "coverage", "vendor", ".git"}
+
+
+def design_engine() -> Path | None:
+    """The bundled engine for this OS and CPU (Windows on ARM runs the x64 build), or None."""
+    osname = {"Darwin": "darwin", "Linux": "linux", "Windows": "windows"}.get(platform.system())
+    arch = {"arm64": "arm64", "aarch64": "arm64", "x86_64": "x64", "AMD64": "x64", "ARM64": "arm64"}.get(platform.machine())
+    if not osname or not arch:
+        return None
+    if osname == "windows":
+        path = DESIGN_SCRIPTS / "bin" / "windows-x64" / "shipwright-design-engine.exe"
+    else:
+        path = DESIGN_SCRIPTS / "bin" / f"{osname}-{arch}" / "shipwright-design-engine"
+    return path if path.is_file() else None
+
+
+def design_files(paths: list[str], cwd: Path) -> list[Path]:
+    files: list[Path] = []
+    for raw in paths:
+        p = (cwd / raw) if not Path(raw).is_absolute() else Path(raw)
+        if p.is_file():
+            files.append(p)
+        elif p.is_dir():
+            for f in sorted(p.rglob("*")):
+                inside = f.relative_to(p).parts
+                if f.is_file() and DETECT_FILE_RE.search(f.name) and not DESIGN_SKIP_DIRS & set(inside):
+                    files.append(f)
+        else:
+            raise SwError(f"not found: {raw}")
+    return files
+
+
+def design_findings(paths: list[str], cwd: Path) -> list[dict]:
+    """Run both checkers: the compiled engine (all UI files) and the JSX rules (.tsx/.jsx)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import design_rules
+    files = design_files(paths, cwd)
+    findings: list[dict] = []
+    exe = design_engine()
+    if exe and files:
+        r = subprocess.run([str(exe), "detect", "--json", "--no-advisory", *map(str, files)], capture_output=True,
+                           text=True, encoding="utf-8", errors="replace", timeout=120, cwd=cwd)
+        if r.returncode == 2:
+            findings += json.loads(r.stdout or "[]")
+        elif r.returncode != 0:
+            raise SwError(f"design engine failed: {(r.stderr or r.stdout).strip()[:200]}")
+    for f in files:
+        if f.suffix.lower() in (".tsx", ".jsx"):
+            findings += design_rules.check_jsx(f.read_text(encoding="utf-8", errors="replace"), str(f))
+    return findings
+
+
+def cmd_design_check(a) -> int:
+    root = Path.cwd()
+    findings = design_findings(a.paths, root)
+    if a.json:
+        print(json.dumps(findings, indent=1))
+    else:
+        for f in findings:
+            line = f":{f['line']}" if f.get("line") else ""
+            print(f"{f.get('file', '')}{line} [{f.get('antipattern')}] {f.get('description', '')[:150]}")
+        print(f"{len(findings)} design issue(s)" if findings else "design check clean")
+    if design_engine() is None:
+        print("note: no compiled engine for this OS/CPU; ran the JSX rules only", file=sys.stderr)
+    return 2 if findings else 0
+
+
+def design_check_targets(cmd: str) -> list[str] | None:
+    """The paths a real `shipwright.py design-check` run scanned, or None if this command is anything else."""
+    try:
+        parts = shlex.split(cmd, posix=os.name != "nt")
+    except ValueError:
+        return None
+    if any(p in ("&&", "||", ";", "|", "&") or p.endswith(";") for p in parts):
+        return None  # chained commands could mask the exit code
+    if len(parts) < 3 or Path(parts[0]).stem not in ("python3", "python", "py") \
+            or Path(parts[1]).name != "shipwright.py" or parts[2] != "design-check":
+        return None
+    return [p for p in parts[3:] if not p.startswith("-")]
+
+
+def design_check_gate(root: Path, fm: dict, d: Path, ui_files: list[str]) -> list[str]:
+    """Every changed UI file needs a passing `design-check` against the current code."""
+    files = [f for f in ui_files if DETECT_FILE_RE.search(f) and (root / f).is_file()]
+    if not files:
+        return []
+    since, fp = fm.get("building_since", ""), tree_fp(root, fm.get("baseline", ""))
+    covered: list[Path] = []
+    for r in load_evidence(d):
+        targets = design_check_targets(r.get("cmd", "")) if not r.get("manual") and not r.get("red") else None
+        if targets and r.get("exit") == 0 and r.get("ts", "") >= since and (not fp or r.get("fp") == fp):
+            covered += [(root / x).resolve() for x in targets]
+    root_r = root.resolve()
+    missing = [f for f in files if not any((root_r / f) == c or c in (root_r / f).parents for c in covered)]
+    if not missing:
+        return []
+    return [f"UI files without a passing design check on the current code: {', '.join(missing[:5])}"
+            f"{' ...' if len(missing) > 5 else ''}. Run `shipwright.py verify <id> -- python3 {Path(__file__).resolve()} "
+            f"design-check {' '.join(missing[:5])}` and fix what it finds"]
+
+
 def ui_gate(root: Path, fm: dict, body: str, d: Path) -> list[str]:
     ui = [f for f in changed_files(root, fm.get("baseline", "")) if UI_FILE_RE.search(f)]
     if not ui:
         return []
     since = fm.get("building_since", "")
     visual = (".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf", ".html", ".mp4", ".webm")
+    problems = design_check_gate(root, fm, d, ui)
+    log = (d / "log.md").read_text(encoding="utf-8") if (d / "log.md").exists() else ""
+    if "GUIDE: shipwright_ui/" not in log:
+        problems.append("UI files changed but no design guide was consulted: `shipwright.py route \"<the UI you built>\" "
+                        "--id <id>`, then apply the guide it names")
     if any(r.get("manual") and r.get("ts", "") >= since and str(r.get("artifact", "")).lower().endswith(visual)
            for r in load_evidence(d)):
-        return []
-    return [f"UI files changed ({', '.join(ui[:3])}{' ...' if len(ui) > 3 else ''}) but no screenshot check recorded: "
+        return problems
+    return problems + [f"UI files changed ({', '.join(ui[:3])}{' ...' if len(ui) > 3 else ''}) but no screenshot check recorded: "
             "see disciplines/ui.md, then `shipwright.py verify <id> --manual \"...\" --artifact <screenshot>`"]
 
 
@@ -495,7 +607,10 @@ def cmd_check(a) -> int:
 
 
 def git(root: Path, *args: str) -> subprocess.CompletedProcess:
-    return subprocess.run(["git", *args], cwd=root, capture_output=True, text=True)
+    try:
+        return subprocess.run(["git", *args], cwd=root, capture_output=True, text=True, encoding="utf-8", errors="replace")
+    except OSError:  # git not installed: behave like "not a repository"
+        return subprocess.CompletedProcess(["git", *args], 127, "", "git not found")
 
 
 def cmd_mark(a) -> int:
@@ -637,7 +752,8 @@ def cmd_verify(a) -> int:
         try:
             # shell=True on purpose: checks are the project's own commands (e.g. `npm test && npm run lint`),
             # written by the agent/human driving the build, with the same trust as their own terminal.
-            r = subprocess.run(cmd, shell=True, cwd=root, capture_output=True, text=True, timeout=a.timeout)
+            r = subprocess.run(cmd, shell=True, cwd=root, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                               timeout=a.timeout)
             out, rc = (r.stdout + r.stderr), r.returncode
         except subprocess.TimeoutExpired:
             out, rc = f"timed out after {a.timeout}s", 124
@@ -874,6 +990,355 @@ def cmd_metrics(a) -> int:
     return 0
 
 
+# ---------- routing: which guides a task needs, and whether a prompt is a Shipwright task ----------
+
+LIBRARY = SKILL_DIR / "library"
+KIND_DISCIPLINE = {"ui": "disciplines/ui.md", "debug": "disciplines/debugging.md", "build": "disciplines/tdd.md",
+                   "test": "disciplines/tdd.md", "security": "lenses/security.md", "review": "disciplines/feedback.md",
+                   "plan": "phases/clarify.md", "ship": "phases/ship.md"}
+
+
+def routing_rules() -> list[dict]:
+    return json.loads((LIBRARY / "routing.json").read_text(encoding="utf-8"))["rules"]
+
+
+# ---- catalog: every bundled guide, in its section, with the text routing matches against ----
+SECTION_KIND = {"shipwright_ui": "ui", "shipwright_debugging": "debug", "shipwright_testing": "test",
+                "shipwright_security": "security", "shipwright_product": "plan", "shipwright_coding": "build",
+                "shipwright_mobile": "build", "shipwright_backend_infra": "build", "shipwright_ai_ml": "build",
+                "shipwright_integrations": "build"}
+STOP = set("a an the and or of to in on for with is are be it this that my our your we i you me us at by from as "
+           "use used using when how what so can will just also into over any all not no do does did should would "
+           "please pls make get need want like some more most very".split())
+# everyday developer phrasing -> the vocabulary guides are written in (query expansion)
+SYNONYMS = {
+    "slow": "performance latency speed optimize", "faster": "performance optimize latency", "lag": "performance latency",
+    "laggy": "performance latency", "forever": "performance slow", "latency": "performance", "p95": "latency performance",
+    "leak": "memory leak heap", "oom": "memory leak", "rss": "memory leak", "crash": "error bug debug", "crashes": "error bug",
+    "broken": "bug debug error", "error": "bug debug", "exception": "error bug", "stacktrace": "error debug",
+    "flaky": "test unreliable", "janky": "animation performance frame", "stutter": "animation performance frame",
+    "fps": "animation performance frame", "ugly": "design critique polish", "generic": "design critique taste",
+    "cluttered": "design layout hierarchy", "premium": "design polish taste", "screen": "interface ui", "page": "web ui",
+    "dashboard": "interface admin data", "landing": "marketing website page hero", "deploy": "release production",
+    "ship": "release", "prod": "production release", "payment": "stripe checkout billing", "pay": "stripe payment",
+    "subscription": "stripe billing", "login": "authentication auth security", "auth": "authentication security",
+    "password": "security authentication", "secret": "secrets security env", "token": "authentication secrets",
+    "chatbot": "llm rag agent", "embedding": "rag vector retrieval", "vector": "rag retrieval", "llm": "ai model prompt agent",
+    "finetune": "training fine-tune model", "train": "training model", "k8s": "kubernetes", "pod": "kubernetes",
+    "pipeline": "ci cd workflow", "workflow": "ci automation", "container": "docker image", "dockerize": "docker container",
+    "db": "database sql", "table": "database sql schema", "query": "sql database", "migration": "database schema migrate",
+    "endpoint": "api rest", "route": "api endpoint", "swipe": "gesture touch mobile", "gesture": "touch mobile animation",
+    "toast": "notification sonner", "snackbar": "toast notification", "a11y": "accessibility wcag", "voiceover": "accessibility screen reader",
+    "figma": "design to code", "repo": "codebase", "onboard": "codebase onboarding tour", "pr": "pull request review",
+    "review": "code review feedback", "comment": "review feedback", "merge": "branch pull request", "rebase": "branch git merge",
+    "test": "testing tdd", "tests": "testing tdd", "e2e": "end-to-end browser playwright", "android": "kotlin mobile",
+    "ios": "swift mobile", "iphone": "ios swift", "flag": "feature flag rollout", "rollout": "feature flag release",
+    "changelog": "release notes version", "terraform": "infrastructure iac", "helm": "kubernetes chart",
+}
+
+
+def _stem(w: str) -> str:
+    for suf in ("ization", "ations", "ation", "ingly", "ings", "ing", "edly", "ies", "ied", "ers", "er", "ed", "es", "ly", "s"):
+        if len(w) > len(suf) + 2 and w.endswith(suf):
+            return w[: -len(suf)] + ("y" if suf in ("ies", "ied") else "")
+    return w
+
+
+def tokens(text: str, expand: bool = False) -> list[str]:
+    words = [w for w in re.findall(r"[a-z0-9]+(?:[-+.][a-z0-9]+)*", text.lower()) if w not in STOP and len(w) > 1]
+    if expand:
+        words += [x for w in words for x in SYNONYMS.get(w, SYNONYMS.get(_stem(w), "")).split()]
+    return [_stem(w) for w in words]
+
+
+def build_catalog() -> dict:
+    guides = []
+    for sec in sorted(p for p in LIBRARY.iterdir() if p.is_dir() and p.name.startswith("shipwright_")):
+        for g in sorted(p for p in sec.iterdir() if (p / "GUIDE.md").is_file()):
+            text = (g / "GUIDE.md").read_text(encoding="utf-8", errors="ignore")
+            m = FM_RE.match(text)
+            desc = ""
+            if m:
+                fm_lines = m.group(1).splitlines()
+                for i, line in enumerate(fm_lines):
+                    if line.startswith("description:"):
+                        desc = line.split(":", 1)[1].strip().strip(">-|").strip("'\"")
+                        for cont in fm_lines[i + 1:]:
+                            if cont[:1] in (" ", "\t"):
+                                desc += " " + cont.strip()
+                            else:
+                                break
+            heads = " ".join(re.findall(r"^#{1,3} (.+)$", text[m.end() if m else 0:], re.M)[:12])
+            name = g.name.replace("shipwright-", "").replace("-", " ")
+            guides.append({"guide": f"{sec.name}/{g.name}", "section": sec.name, "kind": SECTION_KIND.get(sec.name, "build"),
+                           "name": name, "description": " ".join(desc.split())[:600], "headings": heads[:400]})
+    return {"about": "Every bundled guide, generated by `shipwright.py catalog --build`. Routing matches requests "
+                     "against name (x3), description (x2) and headings.", "guides": guides}
+
+
+_CAT_CACHE: dict = {}
+
+
+def catalog() -> list[dict]:
+    if "docs" not in _CAT_CACHE:
+        guides = json.loads((LIBRARY / "catalog.json").read_text(encoding="utf-8"))["guides"]
+        docs = [tokens(g["name"]) * 3 + tokens(g["description"]) * 2 + tokens(g["headings"]) for g in guides]
+        df: dict = {}
+        for d in docs:
+            for w in set(d):
+                df[w] = df.get(w, 0) + 1
+        n = len(docs)
+        _CAT_CACHE.update(guides=guides, docs=docs, avg=sum(map(len, docs)) / max(n, 1),
+                          idf={w: math.log(1 + (n - c + 0.5) / (c + 0.5)) for w, c in df.items()})
+    return _CAT_CACHE["guides"]
+
+
+def bm25(query: str) -> list[tuple[float, dict]]:
+    guides = catalog()
+    q = tokens(query, expand=True)
+    idf, avg = _CAT_CACHE["idf"], _CAT_CACHE["avg"]
+    out = []
+    for g, d in zip(guides, _CAT_CACHE["docs"]):
+        tf: dict = {}
+        for w in d:
+            tf[w] = tf.get(w, 0) + 1
+        sc = sum(idf.get(w, 0) * tf[w] * 2.2 / (tf[w] + 1.2 * (0.25 + 0.75 * len(d) / avg)) for w in q if w in tf)
+        if sc > 0:
+            out.append((sc, g))
+    out.sort(key=lambda x: -x[0])
+    return out
+
+
+def route(text: str, top: int = 2) -> list[dict]:
+    """Context routing over the whole catalog (BM25 on every guide's name, description and headings, with
+    developer-synonym expansion), boosted by the curated precision rules. Returns up to `top` guides, at most one
+    primary UI direction, as dicts with id, kind and guides=[guide]."""
+    scores: dict = {}
+    meta: dict = {}
+    for sc, g in bm25(text):
+        scores[g["guide"]] = sc
+        meta[g["guide"]] = (g["kind"], g["name"])
+    best_bm = max(scores.values(), default=0)
+    for i, rule in enumerate(routing_rules()):
+        hits = sum(1 + kw.count(" ") for kw in rule["keywords"]
+                   if re.search(r"(?<!\w)(?:" + kw + r")(?!\w)", text, re.I))
+        if not hits:
+            continue
+        g = rule["guides"][0]
+        boost = hits * rule.get("weight", 1) * max(best_bm, 4.0) * 0.6 - i * 1e-6
+        scores[g] = scores.get(g, 0) + boost
+        meta[g] = (rule["kind"], rule["id"])
+    ranked = sorted(scores.items(), key=lambda x: -x[1])
+    picked, seen_ui_direction = [], False
+    floor = ranked[0][1] * 0.35 if ranked else 0
+    for g, sc in ranked:
+        if len(picked) >= top or sc < floor:
+            break
+        if g.endswith(("shipwright-art-direction", "shipwright-interface-design")):
+            if seen_ui_direction:
+                continue
+            seen_ui_direction = True
+        kind, rid = meta[g]
+        picked.append({"id": rid, "kind": kind, "guides": [g], "score": round(sc, 2)})
+    return picked
+
+
+QUESTION_RE = re.compile(r"^\s*(?:(?:wait|ok(ay)?|so|hmm+|hey|um+|quick (?:q|question)|genuinely|honestly),?\s+)*"
+                         r"(what('?s)?|whats|why|who|when|which|where|explain|describe|define|tell me|"
+                         r"is (it|there|this)|are (there|you)|do(es)? (it|this|you)|how (does|do|is|are|come)\b|"
+                         r"can you (explain|tell|describe|walk me through)|summari[sz]e|compare)\b", re.I)
+# an explicit request inside a question ("why does X crash? fix it", "can you fix ...") still makes it a task
+REQUEST_RE = re.compile(r"\b(please|pls|plz|can you|could you|go ahead and|and then|then)\s+(fix|build|add|implement|create|make|"
+                        r"refactor|write|update|optimi[sz]e|speed)\b|[?.!]\s*(fix|build|add|implement|make|refactor|write) (it|this|that|them)\b", re.I)
+NOT_A_TASK_RE = re.compile(r"\b(not asking (you )?to (change|fix|edit)|just (curious|want(ing)? to understand|asking)|"
+                           r"no (code )?changes?|don'?t (change|edit|fix) anything|already fixed)\b", re.I)
+# exact edits the user dictates ("change X to Y in file", "rename a to b on line 4") are not Shipwright work
+DICTATED_RE = re.compile(r"^\s*(change|rename|replace|set|update|bump)\b[^.\n]{0,80}\bto\b[^.\n]{0,60}"
+                         r"(\bin\b \S+\.\w+|\bon line\b|\bline \d+)", re.I)
+TASK_RE = re.compile(r"\b(build|create|make|add|implement|fix|debug|refactor|design|architect|plan|write|"
+                     r"(we|i) (really )?need\b|need (a|an|to)\b|it'?d be (great|nice|good) if|would be (great|nice) if|"
+                     r"can we\b|let'?s (add|build|fix|keep going|continue|make|get)|keep going|go through|clean up|"
+                     r"cache\b|shard\b|get (it|this) under|figure out (what|why)|find (the|it).{0,20}\b(and )?fix|"
+                     r"put\b.{0,40}\bbehind|wire up|hook up|turn (this|it|that) into|dockeri[sz]e|containeri[sz]e|roll (it )?out|"
+                     r"support|handle|allow|let users|enable|integrate|"
+                     r"fine[- ]?tune|train (a |the )?model|address (the )?(review|feedback|comments)|"
+                     r"set ?up|migrate|optimi[sz]e|speed (it |this |things )?up|deploy|ship|"
+                     r"integrate|convert|port|upgrade|resume|continue|pick up where|review (my|this|the) (pr|code|diff|change)|"
+                     r"(is|are) broken|doesn'?t work|not working|crash(es|ing)?|failing|throws?|error|bug|slow|laggy|"
+                     r"hangs?|freez(es|ing)|leak(s|ing)?|time(s)? out|timeouts?|exception|stack ?trace|regression|janky|"
+                     r"500|404)\b", re.I)
+DESIGN_ONLY_RE = re.compile(r"\b(design|architect|plan)\b.*\b(system|architecture|solution|approach|platform|service)\b|"
+                            r"\b(solution|system) (design|architecture)\b", re.I)
+
+
+# A request that opens with a development verb is a task ("Ship 3.4 to prod", "rebase my branch ...").
+DEV_VERBS = ("add|adjust|assemble|put|align|allow|automate|batch|block|bootstrap|build|bump|cache|change|clean|configure|connect|"
+             "containeri[sz]e|convert|create|cut|debug|decouple|dedupe|delete|deploy|deprecate|design|diagnose|disable|"
+             "dockeri[sz]e|document|drop|embed|enable|enforce|expose|extend|extract|fine[- ]?tune|finish|fix|generate|get|"
+             "handle|harden|hook|implement|import|improve|index|inline|install|instrument|integrate|introduce|investigate|"
+             "launch|lint|localize|lower|make|merge|migrate|mock|modernize|move|optimi[sz]e|paginate|parallelize|patch|"
+             "persist|port|profile|prototype|provision|publish|push|rebase|rebuild|reduce|refactor|release|remove|rename|"
+             "repair|replace|resolve|restore|restructure|retry|reuse|revert|rewrite|roll|run|scaffold|scale|secure|"
+             "separate|set|shard|ship|shrink|simplify|smooth|sort|speed|split|stabilize|standardize|stop|store|stream|"
+             "strip|support|swap|chunk|sync|test|throttle|tighten|track|train|translate|trim|troubleshoot|tune|turn|untangle|"
+             "update|upgrade|validate|verify|wire|work|wrap|write")
+GREETING = r"(?:(?:hi|hey|hello|ok(ay)?|so|pls|please|yo|team|all|folks|guys)[!,.]*\s+)*"
+IMPERATIVE_RE = re.compile(r"^\s*" + GREETING + r"(?:" + DEV_VERBS + r")\b", re.I)
+READ_ONLY_RE = re.compile(r"^\s*" + GREETING + r"(?:list|show( me)?|read|summari[sz]e|count|print|display|look at|"
+                          r"tell me|give me (a |an )?(overview|summary|list)|find out|check (whether|if))\b", re.I)
+WISH_RE = re.compile(r"\b(would|it'?d) be (really |super |so )?(great|nice|good|awesome) if|(we|i)'?d (like|love)\b|"
+                     r"(we|i) want (a|an|to|the)\b|can (it|this|that|we) be made|"
+                     r"(is|are) (blocking|broken)|need (the|it|this|them) .{0,30}(again|working|fixed)|sort out|work through|"
+                     r"smooth (it|this|that)? ?out|get (it|this) (merged|working|green|under)", re.I)
+
+
+def classify_prompt(text: str) -> str | None:
+    """None for questions, chat and slash commands; otherwise the kind of Shipwright task."""
+    t = text.strip()
+    if not t or t.startswith("/") or len(t) < 12:
+        return None
+    if re.search(r"\b(resume|continue|pick up where|where (were|did) we)\b", t, re.I):
+        return "resume"
+    if NOT_A_TASK_RE.search(t) or DICTATED_RE.search(t):
+        return None
+    q = QUESTION_RE.search(t)
+    if q and not REQUEST_RE.search(t):
+        # "when/where/which/if ..." opens conditions as often as questions: only a question with a "?"
+        if not (re.match(r"\s*(?:\w+,?\s+)*?(when|where|which)\b", q.group(0), re.I) and "?" not in t):
+            return None
+    if READ_ONLY_RE.search(t) and not REQUEST_RE.search(t) and not re.search(r"\band (then )?(fix|update|change|add|remove)\b", t, re.I):
+        return None
+    # a request often comes after the problem description: check the start of every sentence
+    sentences = [x for x in re.split(r"(?<=[.!?;:])\s+|\n+", t) if x.strip()]
+    imperative = any(IMPERATIVE_RE.search(x) for x in sentences)
+    task_word = any(m for m in TASK_RE.finditer(t)
+                    if not re.search(r"\b(the|a|an|our|my|this|that)\s+$", t[:m.start()], re.I))
+    if not (task_word or imperative or WISH_RE.search(t)):
+        return None
+    if DESIGN_ONLY_RE.search(t) and not re.search(r"\b(build|implement|code|fix)\b", t, re.I):
+        return "design"
+    rules = route(t, top=1)
+    return rules[0]["kind"] if rules else "build"
+
+
+SECTION_TITLES = {
+    "shipwright_ui": "UI and design: pages, app screens, critique, polish, motion, mobile UI, Figma, accessibility",
+    "shipwright_coding": "Coding practice: tests, plans, reviews, refactors, releases, flags, migrations, onboarding",
+    "shipwright_debugging": "Debugging: bugs, crashes, performance, memory, browser and Android issues",
+    "shipwright_testing": "Testing: API suites, browser end-to-end, screenshots, chaos and resilience",
+    "shipwright_security": "Security: auth, OWASP, secrets, dependencies, pentesting",
+    "shipwright_mobile": "Mobile: Android, Kotlin, Compose, KMP, Swift and iOS",
+    "shipwright_backend_infra": "Backend and infrastructure: APIs, databases, SQL, Docker, CI/CD, Kubernetes, Terraform, observability, MCP",
+    "shipwright_ai_ml": "AI and ML: RAG, agents, LLM cost, Hugging Face models and training",
+    "shipwright_integrations": "Integrations: Stripe payments and billing, web scraping",
+    "shipwright_product": "Product building: research the best existing products, clone and launch",
+}
+
+
+# Disambiguation for guides that cover similar ground: when to pick which.
+USE_FOR = {
+    "shipwright-art-direction": "Use for any public or marketing page: landing, pricing, campaign, portfolio, homepage. Primary for pages that sell.",
+    "shipwright-frontend-design": "Use only to choose a visual direction before building; for building a page use art-direction or interface-design.",
+    "shipwright-interface-design": "Use for building app screens: dashboards, admin, settings, tables, forms, user management.",
+    "shipwright-design-craft": "Use when existing UI looks generic, cluttered or off: critique, audit, redesign, polish.",
+    "shipwright-ui-polish": "Use for final micro-details and feel of components that already work.",
+    "shipwright-fluid-motion-design": "Use for gestures: swipe, drag, pull-to-refresh, bottom sheets, springs, on web or React Native.",
+    "shipwright-animate-expo": "Use for non-gesture animations in Expo/React Native.",
+    "shipwright-animation-performance": "Use when an animation stutters, drops frames or feels janky.",
+    "shipwright-systematic-debugging": "Use for any bug, error, exception, crash or wrong behavior: root cause first.",
+    "shipwright-focused-fix": "Use only when failures are spread across a whole module or subsystem.",
+    "shipwright-performance-profiler": "Use when a page, endpoint, query or job is slow: latency, load time, throughput.",
+    "shipwright-memory-leak-debugging": "Use when memory keeps growing, the process swaps or gets OOM-killed.",
+    "shipwright-database-designer": "Use for schema and data-model changes: new columns, tables, relations, backfills.",
+    "shipwright-migration-architect": "Use for large migrations between systems, versions or platforms (not a single column).",
+    "shipwright-security-guidance": "Use for auth and any security-sensitive change: login, sessions, JWT, OAuth, tokens, rate limiting, input validation.",
+    "shipwright-dependency-auditor": "Use for dependencies and package managers: npm/pnpm/yarn upgrades, lockfiles, CVEs.",
+    "shipwright-env-secrets-manager": "Use for secrets in code or config: move to env vars, rotate, scrub from history.",
+    "shipwright-ci-cd-pipeline-builder": "Use for CI/CD: GitHub Actions or other pipelines that fail, are slow, or need creating.",
+    "shipwright-kubernetes-operator": "Use for Kubernetes and Helm: pods, charts, autoscaling, CrashLoopBackOff.",
+    "shipwright-docker-development": "Use for Dockerfiles, images and local environments that run with one command.",
+    "shipwright-terraform-patterns": "Use for infrastructure as code: replacing click-ops with reviewed files.",
+    "shipwright-test-driven-development": "Use for unit tests and test-first work on a module.",
+    "shipwright-browser-automation": "Use for browser end-to-end tests of user flows (Playwright, Cypress).",
+    "shipwright-api-test-suite-builder": "Use for tests that hit API endpoints with valid and invalid payloads.",
+    "shipwright-release-manager": "Use for releases: version bumps, tagging, changelogs, shipping to production.",
+    "shipwright-finishing-a-development-branch": "Use for rebasing, resolving conflicts, merging or opening a PR.",
+    "shipwright-receiving-code-review": "Use when acting on review comments or PR feedback.",
+    "shipwright-rag-implementation": "Use for assistants that answer from your documents with citations (RAG).",
+    "shipwright-stripe-best-practices": "Use for payments, subscriptions, proration, failed-payment handling with Stripe.",
+    "shipwright-codebase-onboarding": "Use to understand an unfamiliar codebase before changing it.",
+}
+
+
+def _purpose(desc: str, name: str, guide: str = "") -> str:
+    if guide in USE_FOR:
+        return USE_FOR[guide]
+    first = re.split(r"(?<=[.!?])\s", desc or name, maxsplit=1)[0]
+    return (first[:170] + "...") if len(first) > 170 else first
+
+
+def render_index(cat: dict) -> str:
+    """Compact two-level index the agent reads to route by context: sections first, then one line per guide."""
+    by_sec: dict = {}
+    for g in cat["guides"]:
+        by_sec.setdefault(g["section"], []).append(g)
+    out = ["# Library index (generated by `shipwright.py catalog`; do not edit)", "",
+           "Route by context: pick the section whose description fits the request, then the guide whose purpose",
+           "fits. Log your pick with `shipwright.py route --use <section/guide> --id <item>`.", "", "## Sections", ""]
+    out += [f"- `{sec}` ({len(gs)}): {SECTION_TITLES.get(sec, sec)}" for sec, gs in sorted(by_sec.items())]
+    for sec, gs in sorted(by_sec.items()):
+        out += ["", f"## {sec}", ""]
+        out += [f"- `{sec}/{g['guide'].split('/')[1]}`: {_purpose(g['description'], g['name'], g['guide'].split('/')[1])}"
+                for g in gs]
+    return "\n".join(out) + "\n"
+
+
+def cmd_catalog(a) -> int:
+    cat = build_catalog()
+    path = LIBRARY / "catalog.json"
+    if a.check:
+        current = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+        index_path = LIBRARY / "INDEX.md"
+        if current != cat or not index_path.exists() or index_path.read_text(encoding="utf-8") != render_index(cat):
+            print("catalog.json or INDEX.md is out of date: run `shipwright.py catalog`")
+            return 1
+        print(f"catalog up to date ({len(cat['guides'])} guides)")
+        return 0
+    path.write_text(json.dumps(cat, indent=1) + "\n", encoding="utf-8")
+    (LIBRARY / "INDEX.md").write_text(render_index(cat), encoding="utf-8")
+    print(f"wrote {path} and INDEX.md ({len(cat['guides'])} guides)")
+    return 0
+
+
+def cmd_route(a) -> int:
+    if a.use:  # the agent picked a guide by judgment (e.g. from library/INDEX.md): validate and log it
+        g = a.use.strip("/").removeprefix("library/").removesuffix("/GUIDE.md")
+        if not (LIBRARY / g / "GUIDE.md").is_file():
+            raise SwError(f"no guide {g}: see library/INDEX.md")
+        if a.id:
+            append_log(item_dir(find_root(a.root), a.id), f"GUIDE: {g} (chosen)")
+        print(f"library/{g}/GUIDE.md")
+        return 0
+    text = " ".join(a.text)
+    if not text:
+        raise SwError("give the task text, or --use <section/guide>")
+    rules = route(text, top=a.top)
+    if not rules:
+        print("no specific guide: Shipwright's own disciplines are enough for this task")
+        return 0
+    d = item_dir(find_root(a.root), a.id) if a.id else None
+    for r in rules:
+        g = r["guides"][0]
+        print(f"{r['kind']:<9} {r['id']:<16} library/{g}/GUIDE.md")
+        if d:
+            append_log(d, f"GUIDE: {g} ({r['id']})")
+    if a.all:
+        for r in rules:
+            for g in r["guides"][1:]:
+                print(f"{'':<9} {'(more)':<16} library/{g}/GUIDE.md")
+    return 0
+
+
 def cmd_friction(a) -> int:
     root = find_root(a.root)
     found = 0
@@ -941,20 +1406,20 @@ def lint_council_rounds(d: Path) -> list[str]:
             errs.append(f"{r}: needs positions from at least 3 members saved as A.md, B.md, ... (found {len(members)})")
         if r == "round-3":
             errs += [f"{r}/{f.name}: no '## Dissent' heading" for f in members
-                     if not re.search(r"^#+\s*Dissent", f.read_text(), re.M | re.I)]
+                     if not re.search(r"^#+\s*Dissent", f.read_text(encoding="utf-8"), re.M | re.I)]
         if r != "round-1":
             inp = d / r / "input.md"
             if not inp.exists():
                 errs.append(f"{r}: no input.md (the anonymized positions the members read)")
-            elif MEMBER_NAME_RE.search(inp.read_text()):
+            elif MEMBER_NAME_RE.search(inp.read_text(encoding="utf-8")):
                 errs.append(f"{r}/input.md names a member or role: anonymize it (Position A, B, ...)")
     if counts and len(set(counts.values())) > 1:
         errs.append(f"rounds have different member counts {counts}: every member takes part in every round")
     judge = d / "judge.md"
-    if not judge.exists() or not re.search(r"\|\s*[1-5](\.\d+)?\s*\|", judge.read_text()):
+    if not judge.exists() or not re.search(r"\|\s*[1-5](\.\d+)?\s*\|", judge.read_text(encoding="utf-8")):
         errs.append("judge.md missing or without a numeric score matrix: save the shipwright-council-judge output there")
     key = d / "key.md"
-    if not key.exists() or len(re.findall(r"^\s*-?\s*[A-Z]\s*[:=-]", key.read_text(), re.M)) < 3:
+    if not key.exists() or len(re.findall(r"^\s*-?\s*[A-Z]\s*[:=-]", key.read_text(encoding="utf-8"), re.M)) < 3:
         errs.append("key.md missing: after round 3, map each label to its member (- A: shipwright-red-team)")
     return errs
 
@@ -1001,8 +1466,8 @@ def lint_initiative(root: Path, slug: str) -> list[str]:
     else:
         try:
             cd = council_dir(root, m.group(1))
-            cerrs = lint_council_brief((cd / "brief.md").read_text()) + lint_council_rounds(cd) + \
-                lint_decision((cd / "decision.md").read_text())
+            cerrs = lint_council_brief((cd / "brief.md").read_text(encoding="utf-8")) + lint_council_rounds(cd) + \
+                lint_decision((cd / "decision.md").read_text(encoding="utf-8"))
             errs += [f"council {cd.name}: {e}" for e in cerrs]
         except SwError as e:
             errs.append(str(e))
@@ -1124,6 +1589,9 @@ def cmd_defer(a) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     p = argparse.ArgumentParser(prog="shipwright.py", description=__doc__.splitlines()[0])
     p.add_argument("--root", help="project root (default: nearest folder with .shipwright/)")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -1191,6 +1659,20 @@ def main(argv: list[str] | None = None) -> int:
     c.add_argument("ref", help="council number or slug")
     c.add_argument("--brief", action="store_true")
     c.set_defaults(fn=cmd_council_check)
+    s = sub.add_parser("design-check", help="check UI files: compiled engine plus JSX rules (0 clean, 2 findings)")
+    s.add_argument("paths", nargs="+")
+    s.add_argument("--json", action="store_true")
+    s.set_defaults(fn=cmd_design_check)
+    s = sub.add_parser("catalog", help="(re)build library/catalog.json from every bundled guide (--check: verify)")
+    s.add_argument("--check", action="store_true")
+    s.set_defaults(fn=cmd_catalog)
+    s = sub.add_parser("route", help="pick the library guides for a task (deterministic) and log them with --id")
+    s.add_argument("text", nargs="*")
+    s.add_argument("--id", help="work item to log GUIDE: lines to")
+    s.add_argument("--use", help="log a guide you chose yourself (section/guide)")
+    s.add_argument("--top", type=int, default=2)
+    s.add_argument("--all", action="store_true", help="also list each rule's further guides")
+    s.set_defaults(fn=cmd_route)
     s = sub.add_parser("deploy", help="record a deployment of verified items (DORA)")
     s.add_argument("--items", required=True, help="comma-separated item ids")
     s.add_argument("--env", default="production")

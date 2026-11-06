@@ -1,0 +1,982 @@
+{
+ "about": "Machine-readable guide routing used by `shipwright.py route` and the prompt hook. Each rule: keywords (case-insensitive regex fragments, word-bounded) -> guides (first = primary). library/ROUTING.md is the human-readable view of the same table.",
+ "rules": [
+  {
+   "id": "onboarding",
+   "kind": "plan",
+   "keywords": [
+    "unfamiliar",
+    "onboard(ing)?",
+    "new codebase",
+    "large codebase",
+    "monorepo",
+    "where is .* (defined|implemented)",
+    "how does (this|the) (codebase|repo|project)"
+   ],
+   "guides": [
+    "shipwright_coding/shipwright-codebase-onboarding",
+    "shipwright_coding/shipwright-code-tour",
+    "shipwright_coding/shipwright-monorepo-navigator"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "vague-idea",
+   "kind": "plan",
+   "keywords": [
+    "idea",
+    "brainstorm",
+    "not sure what",
+    "explore options",
+    "shape (this|an|the)"
+   ],
+   "guides": [
+    "shipwright_coding/shipwright-brainstorming"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "copy-product",
+   "kind": "plan",
+   "keywords": [
+    "clone",
+    "like (notion|figma|slack|stripe|airbnb|uber|trello|linear|jira)",
+    "copy of",
+    "better than",
+    "replica",
+    "reverse engineer",
+    "competitor"
+   ],
+   "guides": [
+    "shipwright_product/shipwright-build-from-best",
+    "shipwright_product/shipwright-reverse-engineer-anything",
+    "shipwright_product/shipwright-replica-recon"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "data-model",
+   "kind": "plan",
+   "keywords": [
+    "schema",
+    "data model",
+    "database design",
+    "migrat(e|ion|ions)",
+    "entities",
+    "normali[sz]e",
+    "foreign keys?",
+    "add (a |an )?column",
+    "columns?"
+   ],
+   "guides": [
+    "shipwright_backend_infra/shipwright-database-designer",
+    "shipwright_backend_infra/shipwright-database-schema-designer",
+    "shipwright_coding/shipwright-migration-architect"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "api-design",
+   "kind": "plan",
+   "keywords": [
+    "api design",
+    "rest(ful)? api",
+    "graphql",
+    "openapi",
+    "endpoints?",
+    "api contract",
+    "versioning",
+    "design (the|an?) api",
+    "api for",
+    "rest",
+    "versioned",
+    "routes?"
+   ],
+   "guides": [
+    "shipwright_backend_infra/shipwright-api-design-reviewer"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "feature-flags",
+   "kind": "plan",
+   "keywords": [
+    "feature flags?",
+    "rollout",
+    "canary",
+    "gradual release",
+    "kill switch",
+    "behind a (feature )?flag",
+    "roll (it )?out to",
+    "\\d+ ?% of users"
+   ],
+   "guides": [
+    "shipwright_coding/shipwright-feature-flags-architect"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "tests",
+   "kind": "build",
+   "keywords": [
+    "tests?",
+    "tdd",
+    "mocks?",
+    "unit tests?",
+    "test coverage",
+    "flaky"
+   ],
+   "guides": [
+    "shipwright_coding/shipwright-test-driven-development"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "surgical",
+   "kind": "build",
+   "keywords": [
+    "refactor",
+    "minimal change",
+    "small change",
+    "surgical",
+    "clean ?up"
+   ],
+   "guides": [
+    "shipwright_coding/shipwright-surgical-change-guidelines",
+    "shipwright_coding/shipwright-surgical-coding"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "sql",
+   "kind": "build",
+   "keywords": [
+    "sql",
+    "query",
+    "queries",
+    "postgres",
+    "mysql",
+    "sqlite",
+    "index(es)?"
+   ],
+   "guides": [
+    "shipwright_backend_infra/shipwright-sql-database-assistant"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "observability",
+   "kind": "build",
+   "keywords": [
+    "observability",
+    "monitoring",
+    "logging",
+    "tracing",
+    "metrics dashboard",
+    "slos?",
+    "alerts?",
+    "runbook"
+   ],
+   "guides": [
+    "shipwright_backend_infra/shipwright-observability-designer",
+    "shipwright_backend_infra/shipwright-slo-architect",
+    "shipwright_backend_infra/shipwright-runbook-generator"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "mcp",
+   "kind": "build",
+   "keywords": [
+    "mcp server",
+    "mcp tool",
+    "model context protocol"
+   ],
+   "guides": [
+    "shipwright_backend_infra/shipwright-mcp-server-builder"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "llm-app",
+   "kind": "build",
+   "keywords": [
+    "rag",
+    "retrieval",
+    "embeddings?",
+    "vector (db|store|search)",
+    "chatbot",
+    "llm",
+    "ai agent",
+    "agents?",
+    "prompt",
+    "token cost",
+    "pgvector",
+    "embed(ding)?s?",
+    "chunk(ing)?",
+    "ask the docs",
+    "semantic search",
+    "citations?"
+   ],
+   "guides": [
+    "shipwright_ai_ml/shipwright-rag-implementation",
+    "shipwright_ai_ml/shipwright-rag-architect",
+    "shipwright_ai_ml/shipwright-agent-designer",
+    "shipwright_ai_ml/shipwright-llm-cost-optimizer"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "huggingface",
+   "kind": "build",
+   "keywords": [
+    "hugging ?face",
+    "transformers",
+    "fine-?tun(e|ing)",
+    "train(ing)? (a )?model",
+    "gradio",
+    "spaces?",
+    "lora",
+    "trl",
+    "llama",
+    "mistral",
+    "adapter",
+    "push (it |the adapter )?to the hub",
+    "the hub",
+    "fine[- ]?tun(e|ing)"
+   ],
+   "guides": [
+    "shipwright_ai_ml/shipwright-huggingface-best",
+    "shipwright_ai_ml/shipwright-trl-training"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "stripe",
+   "kind": "build",
+   "keywords": [
+    "stripe",
+    "payments?",
+    "checkout",
+    "subscriptions?",
+    "billing",
+    "invoices?"
+   ],
+   "guides": [
+    "shipwright_integrations/shipwright-stripe-best-practices",
+    "shipwright_integrations/shipwright-stripe-docs"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "android",
+   "kind": "build",
+   "keywords": [
+    "android",
+    "kotlin",
+    "jetpack",
+    "compose",
+    "kmp",
+    "gradle",
+    "room",
+    "koin",
+    "hilt"
+   ],
+   "guides": [
+    "shipwright_mobile/shipwright-android-dev",
+    "shipwright_mobile/shipwright-compose",
+    "shipwright_mobile/shipwright-kotlin-coroutines"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "ios",
+   "kind": "build",
+   "keywords": [
+    "ios",
+    "swift",
+    "swiftui",
+    "xcode",
+    "iphone",
+    "ipad"
+   ],
+   "guides": [
+    "shipwright_mobile/shipwright-write-swift"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "parallel",
+   "kind": "build",
+   "keywords": [
+    "in parallel",
+    "parallel slices",
+    "worktrees?",
+    "multiple branches"
+   ],
+   "guides": [
+    "shipwright_coding/shipwright-dispatching-parallel-agents",
+    "shipwright_coding/shipwright-using-git-worktrees"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "public-page",
+   "kind": "ui",
+   "keywords": [
+    "landing page",
+    "marketing (site|page)",
+    "homepage",
+    "home page",
+    "portfolio",
+    "hero section",
+    "product page",
+    "pricing page",
+    "website",
+    "pricing page",
+    "hero",
+    "faq section",
+    "campaign"
+   ],
+   "guides": [
+    "shipwright_ui/shipwright-art-direction"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "app-screen",
+   "kind": "ui",
+   "keywords": [
+    "dashboard",
+    "admin (panel|page|screen)",
+    "settings (page|screen)",
+    "app screens?",
+    "table view",
+    "data table",
+    "form",
+    "screen",
+    "page",
+    "component",
+    "modal",
+    "sidebar",
+    "navbar",
+    "ui",
+    "admin",
+    "users screen",
+    "table with",
+    "searchable table",
+    "filters?",
+    "bulk (actions?|deactivate|delete)"
+   ],
+   "guides": [
+    "shipwright_ui/shipwright-interface-design"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "ui-critique",
+   "kind": "ui",
+   "keywords": [
+    "looks? (bad|generic|ugly|off|cheap|dated)",
+    "less generic",
+    "generic",
+    "premium",
+    "critique",
+    "redesign",
+    "polish",
+    "make it (look )?(better|premium|modern|nicer)",
+    "design review",
+    "ui audit",
+    "ugly",
+    "cluttered",
+    "messy (layout|ui)",
+    "spacing",
+    "visual hierarchy",
+    "hierarchy",
+    "cta gets lost",
+    "clean up (the )?(spacing|layout|ui|design)"
+   ],
+   "guides": [
+    "shipwright_ui/shipwright-design-craft"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "ui-direction",
+   "kind": "ui",
+   "keywords": [
+    "visual direction",
+    "aesthetic",
+    "look and feel",
+    "style guide",
+    "brand(ing)?"
+   ],
+   "guides": [
+    "shipwright_ui/shipwright-frontend-design"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "ui-polish",
+   "kind": "ui",
+   "keywords": [
+    "micro-?interactions?",
+    "feel",
+    "details",
+    "hover states?",
+    "transitions?"
+   ],
+   "guides": [
+    "shipwright_ui/shipwright-ui-polish"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "mobile-ui",
+   "kind": "ui",
+   "keywords": [
+    "mobile (app|screen|ui)",
+    "react native",
+    "expo",
+    "flutter"
+   ],
+   "guides": [
+    "shipwright_ui/shipwright-mobile-app-ui-design",
+    "shipwright_ui/shipwright-mobile-native"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "gestures",
+   "kind": "ui",
+   "keywords": [
+    "gestures?",
+    "swipe",
+    "drag",
+    "springs?",
+    "bottom sheet",
+    "ios feel",
+    "swipe-to-\\w+",
+    "pull-to-refresh"
+   ],
+   "guides": [
+    "shipwright_ui/shipwright-fluid-motion-design"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "ui-library",
+   "kind": "ui",
+   "keywords": [
+    "component library",
+    "shadcn",
+    "radix",
+    "mui",
+    "chakra",
+    "tailwind ui",
+    "which ui library"
+   ],
+   "guides": [
+    "shipwright_ui/shipwright-pick-ui-library"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "toasts",
+   "kind": "ui",
+   "keywords": [
+    "toasts?",
+    "sonner",
+    "notifications? popup",
+    "snackbar"
+   ],
+   "guides": [
+    "shipwright_ui/shipwright-ask-sonner"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "prototype",
+   "kind": "ui",
+   "keywords": [
+    "prototype",
+    "spike",
+    "mock ?up",
+    "throwaway"
+   ],
+   "guides": [
+    "shipwright_ui/shipwright-prototype"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "figma",
+   "kind": "ui",
+   "keywords": [
+    "figma",
+    "figma\\.com"
+   ],
+   "guides": [
+    "shipwright_ui/shipwright-figma-design-to-code",
+    "shipwright_ui/shipwright-figma-code-connect"
+   ],
+   "weight": 3
+  },
+  {
+   "id": "motion",
+   "kind": "ui",
+   "keywords": [
+    "animat(e|ion|ions)",
+    "motion",
+    "framer"
+   ],
+   "guides": [
+    "shipwright_ui/shipwright-animate"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "janky",
+   "kind": "debug",
+   "keywords": [
+    "janky",
+    "jank",
+    "dropped frames",
+    "stutter",
+    "choppy animation",
+    "stutter(s|ing)?",
+    "60 ?fps",
+    "fps",
+    "frame ?rate",
+    "not smooth",
+    "make it smooth"
+   ],
+   "guides": [
+    "shipwright_ui/shipwright-animation-performance"
+   ],
+   "weight": 3
+  },
+  {
+   "id": "bug",
+   "kind": "debug",
+   "keywords": [
+    "bug",
+    "fix",
+    "broken",
+    "error",
+    "exception",
+    "crash(es|ing)?",
+    "fail(s|ing|ure)?",
+    "not working",
+    "doesn'?t work",
+    "wrong",
+    "regression",
+    "stack ?trace",
+    "500",
+    "404",
+    "\\w+Error",
+    "undefined",
+    "null pointer",
+    "cannot read propert(y|ies)",
+    "track (it )?down",
+    "traceback"
+   ],
+   "guides": [
+    "shipwright_debugging/shipwright-systematic-debugging"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "module-failure",
+   "kind": "debug",
+   "keywords": [
+    "whole module",
+    "everything is broken",
+    "many tests failing",
+    "cascading"
+   ],
+   "guides": [
+    "shipwright_debugging/shipwright-focused-fix"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "performance",
+   "kind": "debug",
+   "keywords": [
+    "slow",
+    "performance",
+    "latency",
+    "cpu",
+    "bundle size",
+    "optimi[sz]e",
+    "speed (it |this |things )?up",
+    "faster",
+    "takes \\d+ ?(s|sec|seconds|ms)",
+    "to load",
+    "load time",
+    "laggy",
+    "10k rows",
+    "large (lists?|tables?)",
+    "p9[059]",
+    "\\d+(\\.\\d+)? ?(ms|s)\\b",
+    "get it under",
+    "latency"
+   ],
+   "guides": [
+    "shipwright_debugging/shipwright-performance-profiler",
+    "shipwright_debugging/shipwright-memory-leak-debugging"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "browser",
+   "kind": "debug",
+   "keywords": [
+    "browser",
+    "chrome",
+    "devtools",
+    "lcp",
+    "core web vitals",
+    "cookies?",
+    "console errors?"
+   ],
+   "guides": [
+    "shipwright_debugging/shipwright-chrome-devtools",
+    "shipwright_debugging/shipwright-debug-optimize-lcp"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "android-crash",
+   "kind": "debug",
+   "keywords": [
+    "anr",
+    "android crash",
+    "logcat"
+   ],
+   "guides": [
+    "shipwright_debugging/shipwright-android-debugging"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "high-risk-review",
+   "kind": "review",
+   "keywords": [
+    "review (this|my|the) (pr|pull request|change|diff)",
+    "code review",
+    "pr review"
+   ],
+   "guides": [
+    "shipwright_coding/shipwright-pr-review-expert"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "security",
+   "kind": "security",
+   "keywords": [
+    "security",
+    "auth(entication|orization)?",
+    "login",
+    "password",
+    "jwt",
+    "oauth",
+    "secrets?",
+    "xss",
+    "sql injection",
+    "csrf",
+    "vulnerabilit(y|ies)",
+    "permissions?",
+    "rate limit(ing|s)?",
+    "brute[- ]force",
+    "throttl(e|ing) (login|requests)"
+   ],
+   "guides": [
+    "shipwright_security/shipwright-security-guidance",
+    "shipwright_security/shipwright-owasp-top-10-testing"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "dependencies",
+   "kind": "security",
+   "keywords": [
+    "dependenc(y|ies)",
+    "cve",
+    "npm audit",
+    "\\.env",
+    "vault",
+    "rotate keys?",
+    "pnpm",
+    "npm",
+    "yarn",
+    "package\\.json",
+    "workspaces?",
+    "lock ?file",
+    "upgrade (the )?deps"
+   ],
+   "guides": [
+    "shipwright_security/shipwright-dependency-auditor",
+    "shipwright_security/shipwright-env-secrets-manager"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "pentest",
+   "kind": "security",
+   "keywords": [
+    "pentest",
+    "penetration test",
+    "security scan"
+   ],
+   "guides": [
+    "shipwright_security/shipwright-penetration-testing-with-strix",
+    "shipwright_security/shipwright-web-app-penetration-testing"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "a11y",
+   "kind": "ui",
+   "keywords": [
+    "accessibility",
+    "a11y",
+    "wcag",
+    "screen reader",
+    "contrast",
+    "keyboard navigation",
+    "voiceover",
+    "talkback",
+    "aria",
+    "focus (order|trap|jumps|ring)",
+    "labels? (missing|for)",
+    "screen ?readers?",
+    "date ?picker.*(keyboard|screen reader)",
+    "keyboard (users|navigation|access)"
+   ],
+   "guides": [
+    "shipwright_ui/shipwright-a11y-audit"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "worst-case-ui",
+   "kind": "ui",
+   "keywords": [
+    "edge cases? (in|for) (the )?ui",
+    "long names",
+    "empty state",
+    "stress test (the )?ui"
+   ],
+   "guides": [
+    "shipwright_ui/shipwright-break-ui"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "chaos",
+   "kind": "test",
+   "keywords": [
+    "chaos",
+    "resilien(ce|t)",
+    "failover",
+    "fault injection"
+   ],
+   "guides": [
+    "shipwright_testing/shipwright-chaos-engineering"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "feedback",
+   "kind": "review",
+   "keywords": [
+    "review comments?",
+    "reviewer (said|asked)",
+    "pr feedback",
+    "address (the )?(review|feedback|comments)",
+    "work through (them|the comments)",
+    "reviewer left",
+    "comments on pr",
+    "pr #\\d+"
+   ],
+   "guides": [
+    "shipwright_coding/shipwright-receiving-code-review"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "memory-leak",
+   "kind": "debug",
+   "weight": 3,
+   "keywords": [
+    "memory leak",
+    "leaks? memory",
+    "heap",
+    "out of memory",
+    "oom",
+    "rss",
+    "oom ?kill(ed)?",
+    "creeps? up",
+    "memory (grows|growing|keeps growing|usage climbs)",
+    "holding (refs|references)",
+    "memory (just )?keeps going up",
+    "memory (keeps )?(going|growing) up",
+    "keeps? (going|growing) up",
+    "leak"
+   ],
+   "guides": [
+    "shipwright_debugging/shipwright-memory-leak-debugging"
+   ]
+  },
+  {
+   "id": "docker",
+   "kind": "build",
+   "keywords": [
+    "docker",
+    "dockerfile",
+    "container(ize)?",
+    "compose file",
+    "dockeri[sz]e",
+    "multi-?stage",
+    "image size",
+    "image (build(ing)?|won'?t build)",
+    "npm ci",
+    "builder \\d",
+    "failed to solve",
+    "docker build"
+   ],
+   "guides": [
+    "shipwright_backend_infra/shipwright-docker-development"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "ci-cd",
+   "kind": "build",
+   "weight": 2,
+   "keywords": [
+    "ci/?cd",
+    "ci pipeline",
+    "pipeline",
+    "github actions",
+    "gitlab ci",
+    "workflow file",
+    "workflow",
+    "shard",
+    "cache (the )?deps",
+    "build time",
+    "ci (is )?slow"
+   ],
+   "guides": [
+    "shipwright_backend_infra/shipwright-ci-cd-pipeline-builder"
+   ]
+  },
+  {
+   "id": "kubernetes",
+   "kind": "build",
+   "keywords": [
+    "kubernetes",
+    "k8s",
+    "helm",
+    "operator",
+    "crd",
+    "pods?",
+    "crashloop(backoff)?",
+    "helm (upgrade|chart|install)",
+    "deployment ya?ml"
+   ],
+   "guides": [
+    "shipwright_backend_infra/shipwright-kubernetes-operator",
+    "shipwright_backend_infra/shipwright-helm-chart-builder"
+   ],
+   "weight": 3
+  },
+  {
+   "id": "terraform",
+   "kind": "build",
+   "keywords": [
+    "terraform",
+    "infrastructure as code",
+    "iac"
+   ],
+   "guides": [
+    "shipwright_backend_infra/shipwright-terraform-patterns"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "browser-e2e",
+   "kind": "test",
+   "weight": 2,
+   "keywords": [
+    "e2e",
+    "end-to-end",
+    "playwright",
+    "cypress",
+    "browser tests?",
+    "signup flow tests?"
+   ],
+   "guides": [
+    "shipwright_testing/shipwright-browser-automation"
+   ]
+  },
+  {
+   "id": "api-tests",
+   "kind": "test",
+   "keywords": [
+    "api tests?",
+    "integration tests?",
+    "contract tests?"
+   ],
+   "guides": [
+    "shipwright_testing/shipwright-api-test-suite-builder"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "release",
+   "kind": "ship",
+   "weight": 2,
+   "keywords": [
+    "release",
+    "changelog",
+    "deploy",
+    "version bump",
+    "release notes",
+    "staging",
+    "production",
+    "ship \\d+(\\.\\d+)*",
+    "to prod(uction)?",
+    "cut a release"
+   ],
+   "guides": [
+    "shipwright_coding/shipwright-release-manager",
+    "shipwright_coding/shipwright-changelog-generator"
+   ]
+  },
+  {
+   "id": "merge-pr",
+   "kind": "ship",
+   "keywords": [
+    "open a pr",
+    "pull request",
+    "finish (the|this) branch",
+    "ship it",
+    "rebase",
+    "(merge )?conflicts?",
+    "get it merged",
+    "squash",
+    "merge (the|this|my|it|our) (pr|branch|changes)",
+    "get it merged",
+    "open a pr"
+   ],
+   "guides": [
+    "shipwright_coding/shipwright-finishing-a-development-branch"
+   ],
+   "weight": 2
+  }
+ ]
+}

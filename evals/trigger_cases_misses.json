@@ -1,0 +1,40 @@
+{
+ "cases": [
+  {
+   "prompt": "write unit tests for utils/dateRange.ts, especially the DST edge cases, i got burned by those last march",
+   "trigger": true
+  },
+  {
+   "prompt": "ProfileActivity.kt is 1200 lines of spaghetti. refactor it into a viewmodel + compose screen without changing behaviour",
+   "trigger": true
+  },
+  {
+   "prompt": "ok lets keep going on the pnpm migration from yesterday. you'd done the root package.json but the workspaces still use npm",
+   "trigger": true
+  },
+  {
+   "prompt": "write unit tests for utils/dateRange.ts, especially the DST edge cases, i got burned by those last march",
+   "trigger": true
+  },
+  {
+   "prompt": "ProfileActivity.kt is 1200 lines of spaghetti. refactor it into a viewmodel + compose screen without changing behaviour",
+   "trigger": true
+  },
+  {
+   "prompt": "ok lets keep going on the pnpm migration from yesterday. you'd done the root package.json but the workspaces still use npm",
+   "trigger": true
+  },
+  {
+   "prompt": "write unit tests for utils/dateRange.ts, especially the DST edge cases, i got burned by those last march",
+   "trigger": true
+  },
+  {
+   "prompt": "ProfileActivity.kt is 1200 lines of spaghetti. refactor it into a viewmodel + compose screen without changing behaviour",
+   "trigger": true
+  },
+  {
+   "prompt": "ok lets keep going on the pnpm migration from yesterday. you'd done the root package.json but the workspaces still use npm",
+   "trigger": true
+  }
+ ]
+}

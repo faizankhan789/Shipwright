@@ -40,6 +40,11 @@ def in_state(path: str) -> bool:
     return "/.shipwright/" in path or path.startswith(".shipwright/")
 
 
+def posix(path: str) -> str:
+    """Windows paths use backslashes; every check below compares forward-slash paths."""
+    return path.replace("\\", "/")
+
+
 def main() -> None:
     try:
         payload = json.load(sys.stdin)
@@ -49,7 +54,7 @@ def main() -> None:
     ti = payload.get("tool_input") or {}
 
     if tool == "Bash":
-        cmd = ti.get("command", "")
+        cmd = posix(ti.get("command", ""))
         # shipwright.py itself never needs these file names on its command line, so there is no exemption for it
         if SHELL_RECORD.search(cmd) and SHELL_WRITE.search(cmd):
             block("evidence, deploy records, logs and the signing key are written only by shipwright.py "
@@ -61,7 +66,7 @@ def main() -> None:
 
     if tool not in ("Write", "Edit", "MultiEdit"):
         return
-    path = ti.get("file_path", "")
+    path = posix(ti.get("file_path", ""))
     if path.endswith("shipwright/key"):
         block("the signing key is managed by shipwright.py.")
     if not in_state(path):
@@ -72,7 +77,7 @@ def main() -> None:
     if name != "plan.md":
         return
     try:
-        current = Path(path).read_text(encoding="utf-8")
+        current = Path(ti.get("file_path", "")).read_text(encoding="utf-8")
     except OSError:
         return  # new file: shipwright.py creates plans; nothing to protect yet
     end = frontmatter_end(current)

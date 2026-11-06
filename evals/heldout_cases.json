@@ -1,0 +1,204 @@
+{
+ "cases": [
+  {
+   "prompt": "getting TypeError: Cannot read properties of undefined (reading 'map') in ProductList whenever the api returns an empty response, fix it",
+   "trigger": true,
+   "area": "debugging-general"
+  },
+  {
+   "prompt": "checkout page takes like 6s to load on slow 3g, lighthouse score is 31. can u speed it up",
+   "trigger": true,
+   "area": "performance"
+  },
+  {
+   "prompt": "our node worker's RSS keeps climbing until it gets OOM killed after ~12h. find the leak and fix it",
+   "trigger": true,
+   "area": "memory-leak"
+  },
+  {
+   "prompt": "sidebar slide in animation stutters really bad on safari, make it smooth 60fps",
+   "trigger": true,
+   "area": "janky-animation"
+  },
+  {
+   "prompt": "build a landing page for our new invoicing app - hero, pricing table, faq, footer. nextjs + tailwind",
+   "trigger": true,
+   "area": "public-page-ui"
+  },
+  {
+   "prompt": "add a settings screen where users can manage their notification preferences (email/push/sms toggles per event type)",
+   "trigger": true,
+   "area": "app-screen-ui"
+  },
+  {
+   "prompt": "the admin dashboard looks super generic, like every AI template ever. make it look less bland and more polished",
+   "trigger": true,
+   "area": "ui-critique"
+  },
+  {
+   "prompt": "implement swipe-to-dismiss on the bottom sheet in the react native app, should snap back if you dont drag far enough",
+   "trigger": true,
+   "area": "mobile-gestures"
+  },
+  {
+   "prompt": "turn this into a react component pls https://www.figma.com/design/aB12cD/Onboarding?node-id=12-44",
+   "trigger": true,
+   "area": "figma"
+  },
+  {
+   "prompt": "signup form is unusable with voiceover, labels missing everywhere and focus jumps around. fix the a11y",
+   "trigger": true,
+   "area": "accessibility"
+  },
+  {
+   "prompt": "write unit tests for utils/dateParse.ts, coverage is basically zero rn",
+   "trigger": true,
+   "area": "tests-unit"
+  },
+  {
+   "prompt": "set up playwright e2e tests for the login -> add to cart -> checkout flow",
+   "trigger": true,
+   "area": "tests-e2e-browser"
+  },
+  {
+   "prompt": "github actions workflow keeps failing on the lint step since yesterday's merge, fix pls",
+   "trigger": true,
+   "area": "ci-cd"
+  },
+  {
+   "prompt": "dockerize the fastapi service, multistage build, want the image under 200mb",
+   "trigger": true,
+   "area": "docker"
+  },
+  {
+   "prompt": "pods going into CrashLoopBackOff after the helm upgrade to 1.8, debug and fix",
+   "trigger": true,
+   "area": "kubernetes"
+  },
+  {
+   "prompt": "write terraform for an s3 bucket + cloudfront distribution for the static docs site, with OAC",
+   "trigger": true,
+   "area": "terraform"
+  },
+  {
+   "prompt": "add an archived_at column to projects, write the migration and backfill from the old is_archived flag",
+   "trigger": true,
+   "area": "data-model-migration"
+  },
+  {
+   "prompt": "design the api for team invites - create invite, accept, revoke, list pending. REST, versioned",
+   "trigger": true,
+   "area": "api-design"
+  },
+  {
+   "prompt": "put the new checkout flow behind a feature flag so we can roll it out to 10% of users first",
+   "trigger": true,
+   "area": "feature-flags"
+  },
+  {
+   "prompt": "implement google oauth login with refresh token rotation, sessions currently just use a jwt in localstorage",
+   "trigger": true,
+   "area": "security-auth"
+  },
+  {
+   "prompt": "npm audit shows 14 high severity vulns, upgrade the deps and fix whatever breaks",
+   "trigger": true,
+   "area": "dependencies-secrets"
+  },
+  {
+   "prompt": "build a rag chatbot over our /docs folder using pgvector and openai embeddings",
+   "trigger": true,
+   "area": "rag-llm"
+  },
+  {
+   "prompt": "integrate stripe subscriptions w/ monthly + annual plans and handle the webhooks for failed payments",
+   "trigger": true,
+   "area": "stripe-payments"
+  },
+  {
+   "prompt": "refactor LoginActivity to mvvm + jetpack compose, its a 1500 line mess",
+   "trigger": true,
+   "area": "android"
+  },
+  {
+   "prompt": "add face id unlock to the swiftui app, fall back to passcode",
+   "trigger": true,
+   "area": "ios-swift"
+  },
+  {
+   "prompt": "cut the v2.3.0 release and ship it to prod",
+   "trigger": true,
+   "area": "release-deploy"
+  },
+  {
+   "prompt": "address the review comments on PR #482",
+   "trigger": true,
+   "area": "pr-feedback"
+  },
+  {
+   "prompt": "ok lets pick up where we left off yesterday on the csv export feature",
+   "trigger": true,
+   "area": "none"
+  },
+  {
+   "prompt": "why did the y2k38 bug happen in the first place, was it just 32-bit time_t?",
+   "trigger": false,
+   "area": "none"
+  },
+  {
+   "prompt": "whats the difference between a fix and a hotfix branch in gitflow",
+   "trigger": false,
+   "area": "none"
+  },
+  {
+   "prompt": "can you explain how the memory leak fix in PR #210 works? not asking to change anything, just want to understand it",
+   "trigger": false,
+   "area": "none"
+  },
+  {
+   "prompt": "how come the deploy failed last friday? just curious, someone already fixed it",
+   "trigger": false,
+   "area": "none"
+  },
+  {
+   "prompt": "react vs svelte for a small internal tool, which would you pick",
+   "trigger": false,
+   "area": "none"
+  },
+  {
+   "prompt": "postgres or mongo for storing event logs? pros/cons",
+   "trigger": false,
+   "area": "none"
+  },
+  {
+   "prompt": "lol thx that worked, ur the best",
+   "trigger": false,
+   "area": "none"
+  },
+  {
+   "prompt": "rename `usr` to `user` on line 4 of auth.ts",
+   "trigger": false,
+   "area": "none"
+  },
+  {
+   "prompt": "change TIMEOUT = 30 to TIMEOUT = 60 in config.py",
+   "trigger": false,
+   "area": "none"
+  },
+  {
+   "prompt": "/review",
+   "trigger": false,
+   "area": "none"
+  },
+  {
+   "prompt": "/clear",
+   "trigger": false,
+   "area": "none"
+  },
+  {
+   "prompt": "good morning! hows ur day going",
+   "trigger": false,
+   "area": "none"
+  }
+ ]
+}

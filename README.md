@@ -4,7 +4,7 @@ One plugin that takes a feature, bug fix, refactor, or whole product from intent
 reviewed code. It contains:
 - **One skill** (`shipwright`) that owns the workflow.
 - **17 internal agents:** a 5-member expert council that debates architecture decisions, an independent council judge, an implementer, a UI designer, a debugger, an investigator, and seven review lenses.
-- **2 hooks:** a session-start reminder to resume open work, and a guard that blocks hand-edits to evidence, logs, and plan gate fields.
+- **4 hooks:** resume reminder at session start, task recognition and routing on each prompt, a guard that blocks hand-edits to evidence, logs and plan gate fields, and a design check after each UI edit.
 - **168 bundled specialist guides:** UI/design, coding, debugging, testing, security, mobile,
   backend/infra, AI/ML, integrations, and app-building. They load only when a phase needs them.
 
@@ -24,7 +24,9 @@ The prose gates are backed by a stdlib-only script (`shipwright.py`) that refuse
 .claude-plugin/plugin.json        plugin manifest
 .claude-plugin/marketplace.json   local marketplace ("shipwright-local") listing this plugin
 agents/                           17 agents, GENERATED from the skill's council/lens/discipline files
-hooks/hooks.json                  SessionStart resume nudge + PreToolUse guard
+hooks/hooks.json                  SessionStart resume nudge, UserPromptSubmit router, PreToolUse guard, PostToolUse design check
+hooks/design_check.py             runs the design check after each UI edit
+hooks/py.sh                       finds a working Python on any OS (python3, python or py)
 hooks/guard_state.py              blocks hand-edits to evidence, logs and plan gate fields
 skills/shipwright/
   SKILL.md                        entry: laws, sizing, phases, agents, library, modes, red flags
@@ -77,6 +79,34 @@ It also reports Shipwright's leading indicators: batch size, review loopbacks, a
 
 `docs/DORA-VALIDATION.md` maps every DORA metric, the 2025 AI Capabilities Model, and the classic
 capabilities to the plugin's mechanisms, with the gaps stated and a 30-day measurement plan.
+
+## Platforms
+
+Python 3.9+ is the only requirement. Git is optional: without it, Shipwright works but can't tie evidence to the code.
+
+| Platform | Design engine | Tested |
+|---|---|---|
+| macOS Apple Silicon | bundled | natively |
+| macOS Intel | bundled | under Rosetta |
+| Linux x64, Linux ARM64 | bundled | full test suite in Docker |
+| Windows x64 | bundled | engine and core workflow under Wine with Windows Python; not on a real Windows machine |
+
+## Triggering and routing
+
+- **Trigger:** the skill's description, plus a `UserPromptSubmit` hook (`hooks/route_prompt.py`, ~50 ms) that
+  recognises build / fix / design / plan / resume requests and tells Claude to invoke `shipwright` first.
+  Questions, explanations, read-only requests, dictated one-line edits and slash commands get nothing.
+- **Routing to guides, by context:** the agent reads `library/INDEX.md` (a 10-section map, then one line per
+  guide with "Use for" disambiguation) and picks by meaning. A keyword/BM25 engine over all 168 guides
+  (`shipwright.py route`, `library/catalog.json` + `routing.json`) supplies a shortlist hint. Picks are logged
+  with `route --use`, and UI work cannot reach `verified` without a logged design guide.
+- **Measured** (`evals/`):
+  - live `claude -p` runs: 89/90 and 117/120 prompts triggered correctly with Shipwright alone; the
+    misses were prompts about files absent from the throwaway test repo;
+  - model-led routing (index + shortlist): 132/136 across five prompt sets;
+  - every guide is the top match for its own description (168/168).
+
+  Re-run with `evals/run_triggers.py` and `evals/run_routing_model.py`.
 
 ## Agents
 

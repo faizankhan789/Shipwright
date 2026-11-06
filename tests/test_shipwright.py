@@ -81,6 +81,8 @@ M_PLAN = """
 LENS_ROWS = "\n".join(f"| {i} | {lens} | - | no findings | false | - | - |" for i, lens in
                       enumerate(["blind", "edge-case", "verification-gap", "intent", "rules"], 1))
 GUARD = REPO / "hooks" / "guard_state.py"
+DESIGN_HOOK = REPO / "hooks" / "design_check.py"
+CHECK = ("python3", str(SW), "design-check")
 
 
 def write_council(d: Path, members=3):
@@ -591,6 +593,17 @@ class SwTest(unittest.TestCase):
         self.assertIn("no numeric scores", r.stdout)
         self.assertIn("## Decision is empty", r.stdout)
 
+    def test_works_without_git_installed(self):
+        plan = self.new()
+        self.fill(plan, S_PLAN, cmd="true")
+        env = {**ENV, "PATH": "/nonexistent"}
+        run = lambda *a: subprocess.run([sys.executable, str(SW), "--root", str(self.root), *a], capture_output=True,
+                                        text=True, cwd=self.root, env=env)
+        self.assertEqual(run("mark", "001", "ready").returncode, 0)
+        r = run("mark", "001", "building")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("baseline: NO_VCS", plan.read_text())
+
     # --- second audit loopholes ---
     def test_small_item_too_big_or_risky_must_review(self):
         self.git_repo()
@@ -673,7 +686,50 @@ class SwTest(unittest.TestCase):
         (shots / "notes.py").write_text("x")
         self.sw("verify", "001", "--manual", "ok", "--artifact", str(shots / "notes.py"), ok=False)  # wrong type
         self.sw("verify", "001", "--manual", "375 and 1280 ok", "--artifact", str(shots / "shot-375.png"))
+        r = self.sw("mark", "001", "verified", ok=False)
+        self.assertIn("no design guide was consulted", r.stdout)
+        out = self.sw("route", "build", "the", "settings", "screen", "--id", "001").stdout
+        self.assertIn("shipwright_ui/", out)
+        r = self.sw("mark", "001", "verified", ok=False)
+        self.assertIn("without a passing design check", r.stdout)
+        self.sw("verify", "001", "--", *CHECK, "Button.tsx")
         self.sw("mark", "001", "verified")
+
+    def ui_item(self, css):
+        self.git_repo()
+        plan = self.s_building()
+        (self.root / "site.css").write_text(css)
+        plan.write_text(plan.read_text().replace("## Implementation Notes", "## Implementation Notes\n\n- site.css"))
+        self.sw("verify", "001", "--", "true")
+        shots = plan.parent / "review"
+        shots.mkdir(exist_ok=True)
+        (shots / "s.png").write_bytes(b"\x89PNG fake")
+        self.sw("verify", "001", "--manual", "375 and 1280 ok", "--artifact", str(shots / "s.png"))
+        self.sw("route", "--use", "shipwright_ui/shipwright-ui-polish", "--id", "001")
+        return plan
+
+    def test_design_check_cannot_be_faked(self):
+        self.ui_item("h1{color:#111}\n")
+        self.sw("verify", "001", "--", "echo", "shipwright-design", "detect", "site.css")  # not the detector
+        self.sw("verify", "001", "--", *CHECK, "other-file.css", "||", "true", ok=None)  # chained: exit code masked
+        r = self.sw("mark", "001", "verified", ok=False)
+        self.assertIn("without a passing design check on the current code: site.css", r.stdout)
+        self.sw("verify", "001", "--", *CHECK, "site.css")
+        self.sw("mark", "001", "verified")
+
+    def test_design_findings_block_verified(self):
+        self.ui_item("h1{background:linear-gradient(90deg,#a855f7,#3b82f6);-webkit-background-clip:text;color:transparent}\n")
+        self.sw("verify", "001", "--", *CHECK, "site.css", ok=False)
+        r = self.sw("mark", "001", "verified", ok=False)
+        self.assertIn("site.css", r.stdout)
+
+    def test_design_check_goes_stale_when_ui_changes(self):
+        self.ui_item("h1{color:#111}\n")
+        self.sw("verify", "001", "--", *CHECK, "site.css")
+        (self.root / "site.css").write_text("h1{color:#222}\n")
+        self.sw("verify", "001", "--", "true")
+        r = self.sw("mark", "001", "verified", ok=False)
+        self.assertIn("without a passing design check on the current code", r.stdout)
 
     def test_future_dated_evidence_is_rejected(self):
         plan = self.s_building()
@@ -689,6 +745,222 @@ class SwTest(unittest.TestCase):
         ev.write_text(ev.read_text().replace('"exit": 1', '"exit": 0').replace("false", "true"))
         r = self.sw("mark", "001", "verified", ok=False)
         self.assertIn("edited outside shipwright.py", r.stdout)
+
+
+def load_cli():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("shipwright_cli", SW)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+class RoutingTest(unittest.TestCase):
+    """The deterministic trigger/route layer must stay exact on every labelled prompt we have."""
+    @classmethod
+    def setUpClass(cls):
+        cls.m = load_cli()
+
+    def check_set(self, name, area_map=None):
+        cases = json.loads((REPO / "evals" / name).read_text())["cases"]
+        bad = []
+        for c in cases:
+            k = self.m.classify_prompt(c["prompt"])
+            if (k is not None) != c["trigger"] or (c.get("kind") and k != c["kind"]):
+                bad.append(f"trigger {c['prompt']!r} -> {k}")
+            want = c.get("guide") or (area_map or {}).get(c.get("area"))
+            if c["trigger"] and want:
+                gs = [r["guides"][0] for r in self.m.route(c["prompt"])]
+                if not any(want in g for g in gs):
+                    bad.append(f"route {c['prompt']!r} -> {gs}")
+        self.assertEqual(bad, [])
+
+    def test_labelled_set(self):
+        self.check_set("routing_cases.json")
+
+    def test_heldout_set(self):
+        area = {"debugging-general": "systematic-debugging", "performance": "performance-profiler", "memory-leak": "memory-leak",
+                "janky-animation": "animation-performance", "public-page-ui": "art-direction", "app-screen-ui": "interface-design",
+                "ui-critique": "design-craft", "mobile-gestures": "fluid-motion-design", "figma": "figma", "toasts": "sonner",
+                "accessibility": "a11y", "tests-unit": "test-driven-development", "tests-e2e-browser": "browser-automation",
+                "tests-api": "api-test-suite", "ci-cd": "ci-cd", "docker": "docker", "kubernetes": "kubernetes",
+                "terraform": "terraform", "sql": "sql", "data-model-migration": "database", "api-design": "api-design",
+                "feature-flags": "feature-flags", "security-auth": "security", "dependencies-secrets": "dependency",
+                "rag-llm": "rag", "huggingface-training": "huggingface", "mcp-server": "mcp", "stripe-payments": "stripe",
+                "android": "android", "ios-swift": "swift", "release-deploy": "release",
+                "merge-pr": "finishing-a-development-branch", "pr-feedback": "receiving-code-review",
+                "codebase-onboarding": "onboarding"}
+        self.check_set("heldout_cases.json", area)
+        self.check_set("heldout2_cases.json", area)
+        self.check_set("heldout3_cases.json", area)
+
+    def test_catalog_lists_every_guide_and_is_in_sync(self):
+        lib = REPO / "skills" / "shipwright" / "library"
+        on_disk = {f"{s.name}/{g.name}" for s in lib.iterdir() if s.is_dir() for g in s.iterdir() if (g / "GUIDE.md").is_file()}
+        cat = {g["guide"] for g in json.loads((lib / "catalog.json").read_text())["guides"]}
+        self.assertEqual(on_disk - cat, set(), "guides missing from the catalog")
+        self.assertEqual(cat - on_disk, set(), "catalog lists guides that do not exist")
+        r = subprocess.run([sys.executable, str(SW), "catalog", "--check"], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stdout)
+
+    def test_every_guide_is_reachable_by_context(self):
+        miss = [g["guide"] for g in self.m.catalog()
+                if g["guide"] not in [x[1]["guide"] for x in self.m.bm25(g["description"][:220] or g["name"])][:3]]
+        self.assertEqual(miss, [])
+
+    def test_route_use_logs_a_chosen_guide(self):
+        with tempfile.TemporaryDirectory() as t:
+            run = lambda *a: subprocess.run([sys.executable, str(SW), "--root", t, *a], capture_output=True, text=True, env=ENV)
+            run("init"); run("new", "Settings", "--size", "S", "--type", "chore", "--risk", "low")
+            self.assertEqual(run("route", "--use", "shipwright_ui/shipwright-ui-polish", "--id", "001").returncode, 0)
+            self.assertNotEqual(run("route", "--use", "shipwright_ui/nope", "--id", "001").returncode, 0)
+            log = next(Path(t, ".shipwright", "work").glob("001-*")) / "log.md"
+            self.assertIn("GUIDE: shipwright_ui/shipwright-ui-polish (chosen)", log.read_text())
+
+    def test_paraphrase_set_triggers(self):
+        # indirect phrasings: the hook must still recognise the task (routing them is the model's job, see evals)
+        cases = json.loads((REPO / "evals" / "heldout4_cases.json").read_text())["cases"]
+        bad = [c["prompt"] for c in cases if (self.m.classify_prompt(c["prompt"]) is not None) != c["trigger"]]
+        self.assertEqual(bad, [])
+
+    def test_every_routed_guide_exists(self):
+        lib = REPO / "skills" / "shipwright" / "library"
+        rules = json.loads((lib / "routing.json").read_text())["rules"]
+        self.assertEqual([g for r in rules for g in r["guides"] if not (lib / g / "GUIDE.md").exists()], [])
+
+    def test_prompt_hook_speaks_only_for_tasks(self):
+        hook = REPO / "hooks" / "route_prompt.py"
+        run = lambda p: subprocess.run([sys.executable, str(hook)], input=json.dumps({"prompt": p}),
+                                       capture_output=True, text=True)
+        task = run("Build a landing page for my coffee shop")
+        self.assertEqual(task.returncode, 0)
+        self.assertIn("invoke the `shipwright` skill", task.stdout)
+        self.assertIn("shipwright-art-direction", task.stdout)
+        for q in ("What does this regex do?", "/help", "thanks!", "set MAX_RETRIES to 5 in settings.py"):
+            r = run(q)
+            self.assertEqual((r.returncode, r.stdout), (0, ""), q)
+        broken = subprocess.run([sys.executable, str(hook)], input="not json", capture_output=True, text=True)
+        self.assertEqual(broken.returncode, 0)
+
+
+class PortabilityTest(unittest.TestCase):
+    def test_every_python_hook_goes_through_the_launcher(self):
+        hooks = json.loads((REPO / "hooks" / "hooks.json").read_text())["hooks"]
+        cmds = [h["command"] for ev in hooks.values() for g in ev for h in g["hooks"]]
+        py = [c for c in cmds if '.py"' in c]  # commands that execute a Python script
+        self.assertGreaterEqual(len(py), 3)
+        self.assertTrue(all("hooks/py.sh" in c and not c.startswith("python") for c in py), py)
+
+    def test_launcher_passes_exit_codes_and_survives_no_python(self):
+        with tempfile.TemporaryDirectory() as t:
+            script = Path(t) / "x.py"
+            script.write_text("import sys; print('ran'); sys.exit(2)")
+            r = subprocess.run(["sh", str(REPO / "hooks" / "py.sh"), str(script)], capture_output=True, text=True)
+            self.assertEqual((r.returncode, r.stdout.strip()), (2, "ran"))
+            r = subprocess.run(["/bin/sh", str(REPO / "hooks" / "py.sh"), str(script)], capture_output=True, text=True,
+                               env={"PATH": t})
+            self.assertEqual((r.returncode, r.stdout), (0, ""))
+
+    def test_every_platform_engine_is_bundled_and_clean(self):
+        base = REPO / "skills/shipwright/library/shipwright_ui/shipwright-design-craft/scripts/bin"
+        want = {"darwin-arm64/shipwright-design-engine", "darwin-x64/shipwright-design-engine",
+                "linux-arm64/shipwright-design-engine", "linux-x64/shipwright-design-engine",
+                "windows-x64/shipwright-design-engine.exe"}
+        self.assertEqual({str(p.relative_to(base)) for p in base.glob("*/*")}, want)
+        for w in want:
+            b = (base / w).read_bytes()
+            self.assertEqual([t for t in (b"impeccable", b"npx shipwright", b"shipwright.style") if t in b], [], w)
+
+
+class DesignRulesTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(SW.parent))
+        import design_rules
+        cls.r = design_rules
+
+    def rules(self, jsx):
+        return sorted({f["antipattern"] for f in self.r.check_jsx(jsx, "x.tsx")})
+
+    def test_each_rule_fires(self):
+        cases = {
+            "gradient-text": "<h1 style={{ background: 'linear-gradient(red,blue)', WebkitBackgroundClip: 'text' }}>a</h1>",
+            "low-contrast": "<p style={{ color: '#aaa', backgroundColor: '#bbb' }}>a</p>",
+            "tiny-text": "<p className='text-[10px]'>a</p>",
+            "justified-text": "<p style={{ textAlign: 'justify' }}>a</p>",
+            "img-no-alt": "<img src='/a.png' />",
+            "clickable-div": "<div onClick={() => go()}>a</div>",
+            "input-no-label": "<input type='text' />",
+            "focus-removed": "<a className='outline-none' href='/'>a</a>",
+            "icon-button-no-name": "<button><TrashIcon /></button>",
+        }
+        for rule, jsx in cases.items():
+            self.assertIn(rule, self.rules(jsx), jsx)
+
+    def test_tailwind_contrast_uses_real_palette(self):
+        self.assertIn("low-contrast", self.rules('<p className="text-gray-400 bg-white">a</p>'))
+        self.assertEqual(self.rules('<p className="text-gray-900 bg-white">a</p>'), [])
+        self.assertAlmostEqual(self.r.contrast("000000", "ffffff"), 21.0, places=1)
+
+    def test_good_code_stays_clean(self):
+        good = """
+        const List = ({ items }: { items: Item[] }) => (
+          <section className="text-gray-900 bg-white">
+            <img src="/a.png" alt="Chart" />
+            <button aria-label="Delete"><TrashIcon /></button>
+            <button onClick={save}>Save</button>
+            <label htmlFor="n">Name</label><input id="n" />
+            <input type="hidden" name="t" />
+            <div role="button" tabIndex={0} onClick={go}>Go</div>
+            <a className="outline-none focus-visible:ring-2" href="/">Home</a>
+            {items.map((i) => (i.count > 3 ? <b key={i.id}>{i.name}</b> : null))}
+          </section>
+        );
+        """
+        self.assertEqual(self.rules(good), [])
+
+    def test_disable_comment_silences_a_line(self):
+        self.assertEqual(self.rules("{/* shipwright-disable decorative */}\n<img src='/d.png' />"), [])
+
+
+class DesignHookTest(unittest.TestCase):
+    BAD = "h1{background:linear-gradient(90deg,#a855f7,#3b82f6);-webkit-background-clip:text;color:transparent}\n"
+
+    def run_hook(self, path, cwd, tool="Edit"):
+        return subprocess.run([sys.executable, str(DESIGN_HOOK)], capture_output=True, text=True,
+                              input=json.dumps({"tool_name": tool, "tool_input": {"file_path": str(path)}, "cwd": str(cwd)}))
+
+    def test_reports_findings_without_blocking(self):
+        with tempfile.TemporaryDirectory() as t:
+            f = Path(t) / "site.css"
+            f.write_text(self.BAD)
+            r = self.run_hook(f, t)
+            self.assertEqual(r.returncode, 0)
+            ctx = json.loads(r.stdout)["hookSpecificOutput"]
+            self.assertEqual(ctx["hookEventName"], "PostToolUse")
+            self.assertIn("gradient-text", ctx["additionalContext"])
+
+    def test_silent_when_clean_or_not_ui_or_generated(self):
+        with tempfile.TemporaryDirectory() as t:
+            root = Path(t)
+            (root / "ok.css").write_text("h1{color:#111}\n")
+            (root / "a.py").write_text(self.BAD)
+            (root / "node_modules").mkdir()
+            (root / "node_modules" / "x.css").write_text(self.BAD)
+            for f in ("ok.css", "a.py", "node_modules/x.css", "missing.css"):
+                r = self.run_hook(root / f, t)
+                self.assertEqual((r.returncode, r.stdout), (0, ""), f)
+
+    def test_project_under_a_folder_named_build_is_still_checked(self):
+        with tempfile.TemporaryDirectory() as t:
+            proj = Path(t) / "build" / "app"
+            proj.mkdir(parents=True)
+            (proj / "site.css").write_text(self.BAD)
+            self.assertIn("gradient-text", self.run_hook(proj / "site.css", proj).stdout)
+
+    def test_bad_payload_never_breaks_an_edit(self):
+        r = subprocess.run([sys.executable, str(DESIGN_HOOK)], input="not json", capture_output=True, text=True)
+        self.assertEqual((r.returncode, r.stdout), (0, ""))
 
 
 class GuardHookTest(unittest.TestCase):
@@ -735,6 +1007,13 @@ class GuardHookTest(unittest.TestCase):
                 "file_path": str(f), "content": content}}).returncode
             self.assertEqual(write("---\nstatus: building\nrisk: low\n---\nnew body\n"), 0)
             self.assertEqual(write("---\nstatus: done\nrisk: low\n---\nnew body\n"), 2)
+
+    def test_windows_paths_are_protected_too(self):
+        for name in ("evidence.jsonl", "deploys.jsonl", "log.md"):
+            r = self.run_guard({"tool_name": "Write", "tool_input": {
+                "file_path": f"C:\\Users\\me\\app\\.shipwright\\work\\001-x\\{name}", "content": "x"}})
+            self.assertEqual(r.returncode, 2, name)
+        self.assertEqual(self.bash("echo x >> .shipwright\\work\\001-x\\evidence.jsonl"), 2)
 
     def test_ignores_unrelated_files(self):
         r = self.run_guard({"tool_name": "Write", "tool_input": {"file_path": "/p/src/app.py", "content": "x"}})
