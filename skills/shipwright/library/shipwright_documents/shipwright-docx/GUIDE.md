@@ -1,12 +1,12 @@
 ---
 name: shipwright-docx
 description: "Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx) or Word templates (.dotx). Triggers include: any mention of Microsoft Word Documents, such as 'Word doc', 'word document', '.docx', '.dotx', 'microsoft doc'. Also use when extracting or reorganizing content from .docx or .dotx files, inserting or replacing images in documents, find-and-replace in Word files, working with tracked changes or comments, or converting content into a polished Word document. If the user asks for a deliverable as a Word or .docx file (to download, email or print), use this skill. However, if they ask for a document, page, report, memo, or notes WITHOUT naming a file format and the session offers Claude's own dedicated document or page skill or connector, use that instead, even if they will email or print it. Do NOT use for PDFs, spreadsheets, Google Docs, or coding unrelated to document generation."
-license: Apache-2.0 (see THIRD-PARTY-NOTICES.md)
+license: Apache-2.0 (see LICENSE.txt in this folder)
 ---
 
 > **Vendored into Shipwright.** This guide produces a file, so no Shipwright plan or gates are needed: follow it directly. Paths below are relative to this folder.
 
-> Modified from an Apache-2.0 original (renamed, this note added, frontmatter updated). See `THIRD-PARTY-NOTICES.md` at the plugin root.
+> Modified from an Apache-2.0 original (renamed, this note added, frontmatter updated). The full license is in `LICENSE.txt` in this folder.
 
 
 # DOCX creation, editing, and analysis

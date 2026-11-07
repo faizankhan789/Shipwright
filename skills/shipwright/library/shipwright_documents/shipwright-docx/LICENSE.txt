@@ -1,21 +1,5 @@
-# Third-party notices
 
-Shipwright is licensed under the Shipwright License (see `LICENSE`). The guides below are not: they stay
-under the Apache License, Version 2.0, whose full text follows.
-
-| Guide | Folder | Original skill | Source |
-|---|---|---|---|
-| shipwright-docx | `skills/shipwright/library/shipwright_documents/shipwright-docx/` | `docx` | https://github.com/anthropics/skills/tree/main/skills/docx |
-| shipwright-pdf | `skills/shipwright/library/shipwright_documents/shipwright-pdf/` | `pdf` | https://github.com/anthropics/skills/tree/main/skills/pdf |
-| shipwright-pptx | `skills/shipwright/library/shipwright_documents/shipwright-pptx/` | `pptx` | https://github.com/anthropics/skills/tree/main/skills/pptx |
-| shipwright-xlsx | `skills/shipwright/library/shipwright_documents/shipwright-xlsx/` | `xlsx` | https://github.com/anthropics/skills/tree/main/skills/xlsx |
-
-Originally published by Anthropic, PBC. Shipwright changed them as follows: each folder was renamed;
-`SKILL.md` became `GUIDE.md`; its `name` and `license` frontmatter changed and a short note was added at
-the top; `LICENSE.txt` moved into this file. The scripts and all other files are unchanged.
-
-```
-Apache License
+                                 Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
 
@@ -216,4 +200,3 @@ Apache License
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-```

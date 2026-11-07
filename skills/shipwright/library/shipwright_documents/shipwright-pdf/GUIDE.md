@@ -1,12 +1,12 @@
 ---
 name: shipwright-pdf
 description: Use this skill whenever the user wants to do anything with PDF files. This includes reading or extracting text/tables from PDFs, combining or merging multiple PDFs into one, splitting PDFs apart, rotating pages, adding watermarks, creating new PDFs, filling PDF forms, encrypting/decrypting PDFs, extracting images, and OCR on scanned PDFs to make them searchable. If the user mentions a .pdf file or asks to produce one, use this skill.
-license: Apache-2.0 (see THIRD-PARTY-NOTICES.md)
+license: Apache-2.0 (see LICENSE.txt in this folder)
 ---
 
 > **Vendored into Shipwright.** This guide produces a file, so no Shipwright plan or gates are needed: follow it directly. Paths below are relative to this folder.
 
-> Modified from an Apache-2.0 original (renamed, this note added, frontmatter updated). See `THIRD-PARTY-NOTICES.md` at the plugin root.
+> Modified from an Apache-2.0 original (renamed, this note added, frontmatter updated). The full license is in `LICENSE.txt` in this folder.
 
 
 # PDF Processing Guide

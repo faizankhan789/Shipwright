@@ -8,7 +8,7 @@ Shipwright, including its skills, agents, hooks, scripts, templates, documentati
 
 Permission to use, copy, or modify Shipwright is granted only to Faizan Khan and individuals or organizations expressly authorized in writing by the copyright holder. Any unauthorized use, reproduction, distribution, modification, sublicensing, publication, or sale of Shipwright, in whole or in part, is strictly prohibited.
 
-Third-party material: the guides listed in THIRD-PARTY-NOTICES.md are not covered by this license. They stay under the license stated in that file.
+Third-party material: the docx, pdf, pptx and xlsx guides in skills/shipwright/library/shipwright_documents/ are not covered by this license. Each stays under the Apache License 2.0 in the LICENSE.txt file in its own folder.
 
 Shipwright is provided "AS IS", without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, and non-infringement.
 

@@ -1,12 +1,12 @@
 ---
 name: shipwright-pptx
 description: "Use this skill any time a .pptx or .potx file is involved in any way — as input, output, or both. This includes: creating slide decks, pitch decks, or presentations as PowerPoint (.pptx) files; reading, parsing, or extracting text from any .pptx or .potx file (even if the extracted content will be used elsewhere, like in an email, summary, or creating a different type of slide deck); editing, modifying, or updating existing presentations; combining or splitting slide files; working with templates (.potx), layouts, speaker notes, or comments. Trigger whenever the user asks for a PowerPoint or .pptx file, or references a .pptx or .potx filename, regardless of what they plan to do with the content afterward. However, when the user asks for a deck, slides, a slide deck, or a presentation without naming a file format, default to using a dedicated slide-deck artifact type or a separate slides skill if this session offers one; otherwise, use this skill."
-license: Apache-2.0 (see THIRD-PARTY-NOTICES.md)
+license: Apache-2.0 (see LICENSE.txt in this folder)
 ---
 
 > **Vendored into Shipwright.** This guide produces a file, so no Shipwright plan or gates are needed: follow it directly. Paths below are relative to this folder.
 
-> Modified from an Apache-2.0 original (renamed, this note added, frontmatter updated). See `THIRD-PARTY-NOTICES.md` at the plugin root.
+> Modified from an Apache-2.0 original (renamed, this note added, frontmatter updated). The full license is in `LICENSE.txt` in this folder.
 
 
 # PPTX creation, editing, and analysis

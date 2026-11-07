@@ -464,4 +464,4 @@ tests/               test suite
 
 ## License
 
-Shipwright is licensed under the **Shipwright License** (see [LICENSE](LICENSE)). The four document guides (`docx`, `pdf`, `pptx`, `xlsx`) stay under Apache-2.0; see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+Shipwright is licensed under the **Shipwright License** (see [LICENSE](LICENSE)). The four document guides (`docx`, `pdf`, `pptx`, `xlsx`) stay under Apache-2.0, with the license text in each guide's folder.

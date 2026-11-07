@@ -1310,14 +1310,16 @@ class SkillStructureTest(unittest.TestCase):
         self.assertEqual(sorted(p.name for p in lib.iterdir() if p.is_dir()), sorted(names))
         for n in names:
             self.assertRegex((lib / n / "GUIDE.md").read_text(), rf"\A---\nname: {n}\n")
-        notices = (REPO / "THIRD-PARTY-NOTICES.md").read_text()
-        self.assertIn("Apache License", notices)
-        self.assertIn("TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION", notices)
+        # the owner does not want a root notices file; Apache-2.0 text ships inside each Apache guide instead
+        self.assertFalse((REPO / "THIRD-PARTY-NOTICES.md").exists())
         for n in names[:4]:
-            self.assertIn(n, notices)
-            self.assertRegex((lib / n / "GUIDE.md").read_text(), r"(?m)^license: Apache-2\.0")
-            self.assertIn("Modified from an Apache-2.0 original", (lib / n / "GUIDE.md").read_text())
-        self.assertIn("THIRD-PARTY-NOTICES.md", (REPO / "LICENSE").read_text())
+            lic = (lib / n / "LICENSE.txt").read_text()
+            self.assertIn("TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION", lic)
+            guide = (lib / n / "GUIDE.md").read_text()
+            self.assertRegex(guide, r"(?m)^license: Apache-2\.0 \(see LICENSE\.txt in this folder\)$")
+            self.assertIn("Modified from an Apache-2.0 original", guide)
+        self.assertIn("shipwright_documents", (REPO / "LICENSE").read_text())
+        self.assertNotIn("THIRD-PARTY-NOTICES", (REPO / "LICENSE").read_text() + (REPO / "README.md").read_text())
 
     def test_skill_md_stays_lean(self):
         words = len((self.skill / "SKILL.md").read_text().split())
