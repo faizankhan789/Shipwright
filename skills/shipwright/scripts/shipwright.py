@@ -278,9 +278,14 @@ def load_evidence(d: Path) -> list[dict]:
     return [json.loads(l) for l in f.read_text(encoding="utf-8").splitlines() if l.strip()]
 
 
+def one_line(text: str) -> str:
+    """Log lines and frontmatter values are line-based: a newline in user text could forge a new entry."""
+    return " ".join(str(text).split())
+
+
 def append_log(d: Path, text: str) -> None:
     with (d / "log.md").open("a", encoding="utf-8") as fh:
-        fh.write(f"- {now()} {text}\n")
+        fh.write(f"- {now()} {one_line(text)}\n")
 
 
 def tree_fp(root: Path, base: str) -> str:
@@ -578,6 +583,7 @@ def cmd_new(a) -> int:
     d = state(root) / "work" / f"{iid}-{slugify(a.title)}"
     d.mkdir(parents=True)
     body = (TEMPLATES / f"plan-{a.size}.md").read_text(encoding="utf-8").replace("{title}", a.title)
+    a.title = one_line(a.title)
     fm = {
         "id": iid, "title": a.title, "size": a.size, "type": a.type, "status": "draft",
         "risk": a.risk or "", "initiative": a.initiative or "", "after": a.after or "",
@@ -816,6 +822,7 @@ def cmd_set(a) -> int:
         if "=" not in pair:
             raise SwError(f"expected key=value, got {pair}")
         k, v = pair.split("=", 1)
+        v = one_line(v)
         if k not in SETTABLE:
             raise SwError(f"cannot set {k}; settable: {', '.join(sorted(SETTABLE))}")
         if k in DRAFT_ONLY and fm.get("status") != "draft":
@@ -1507,7 +1514,7 @@ def cmd_council_check(a) -> int:
 
 
 def cmd_log(a) -> int:
-    if a.text.lstrip().startswith(RESERVED_LOG):
+    if one_line(a.text).startswith(RESERVED_LOG):
         raise SwError(f"log lines starting with {RESERVED_LOG[0]} are written by `route`, and the others by the gates")
     d = item_dir(find_root(a.root), a.id)
     append_log(d, a.text)
