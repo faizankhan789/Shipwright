@@ -417,8 +417,11 @@ def design_findings(paths: list[str], cwd: Path) -> list[dict]:
     findings: list[dict] = []
     exe = design_engine()
     if exe and files:
-        r = subprocess.run([str(exe), "detect", "--json", "--no-advisory", *map(str, files)], capture_output=True,
-                           text=True, encoding="utf-8", errors="replace", timeout=120, cwd=cwd)
+        try:
+            r = subprocess.run([str(exe), "detect", "--json", "--no-advisory", *map(str, files)], capture_output=True,
+                               text=True, encoding="utf-8", errors="replace", timeout=120, cwd=cwd)
+        except OSError as e:
+            raise SwError(f"design engine can't run on this system: {e}")
         if r.returncode == 2:
             findings += json.loads(r.stdout or "[]")
         elif r.returncode != 0:
@@ -431,6 +434,11 @@ def design_findings(paths: list[str], cwd: Path) -> list[dict]:
 
 def cmd_design_check(a) -> int:
     root = Path.cwd()
+    if design_engine() is None and not a.allow_no_engine and \
+            any(f.suffix.lower() not in (".tsx", ".jsx") for f in design_files(a.paths, root)):
+        print("no design engine for this OS/CPU, so these files can't be checked. Re-run with --allow-no-engine "
+              "to record that the check was skipped.", file=sys.stderr)
+        return 1
     findings = design_findings(a.paths, root)
     if a.json:
         print(json.dumps(findings, indent=1))
@@ -439,22 +447,21 @@ def cmd_design_check(a) -> int:
             line = f":{f['line']}" if f.get("line") else ""
             print(f"{f.get('file', '')}{line} [{f.get('antipattern')}] {f.get('description', '')[:150]}")
         print(f"{len(findings)} design issue(s)" if findings else "design check clean")
-    if design_engine() is None:
-        print("note: no compiled engine for this OS/CPU; ran the JSX rules only", file=sys.stderr)
     return 2 if findings else 0
 
 
 def design_check_targets(cmd: str) -> list[str] | None:
     """The paths a real `shipwright.py design-check` run scanned, or None if this command is anything else."""
+    if re.search(r"[|&;<>()$`\n]", cmd):
+        return None  # any shell syntax could mask the exit code or change what actually ran
     try:
         parts = shlex.split(cmd, posix=os.name != "nt")
     except ValueError:
         return None
-    if any(p in ("&&", "||", ";", "|", "&") or p.endswith(";") for p in parts):
-        return None  # chained commands could mask the exit code
-    if len(parts) < 3 or Path(parts[0]).stem not in ("python3", "python", "py") \
-            or Path(parts[1]).name != "shipwright.py" or parts[2] != "design-check":
+    if len(parts) < 3 or Path(parts[0]).stem not in ("python3", "python", "py") or parts[2] != "design-check":
         return None
+    if Path(parts[1]).resolve() != Path(__file__).resolve():
+        return None  # a different file that happens to be called shipwright.py is not the check
     return [p for p in parts[3:] if not p.startswith("-")]
 
 
@@ -475,7 +482,7 @@ def design_check_gate(root: Path, fm: dict, d: Path, ui_files: list[str]) -> lis
         return []
     return [f"UI files without a passing design check on the current code: {', '.join(missing[:5])}"
             f"{' ...' if len(missing) > 5 else ''}. Run `shipwright.py verify <id> -- python3 {Path(__file__).resolve()} "
-            f"design-check {' '.join(missing[:5])}` and fix what it finds"]
+            f"design-check {' '.join(shlex.quote(x) for x in missing[:5])}` and fix what it finds"]
 
 
 def ui_gate(root: Path, fm: dict, body: str, d: Path) -> list[str]:
@@ -486,7 +493,7 @@ def ui_gate(root: Path, fm: dict, body: str, d: Path) -> list[str]:
     visual = (".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf", ".html", ".mp4", ".webm")
     problems = design_check_gate(root, fm, d, ui)
     log = (d / "log.md").read_text(encoding="utf-8") if (d / "log.md").exists() else ""
-    if "GUIDE: shipwright_ui/" not in log:
+    if not re.search(r"^- \S+ GUIDE: shipwright_ui/", log, re.M):
         problems.append("UI files changed but no design guide was consulted: `shipwright.py route \"<the UI you built>\" "
                         "--id <id>`, then apply the guide it names")
     if any(r.get("manual") and r.get("ts", "") >= since and str(r.get("artifact", "")).lower().endswith(visual)
@@ -650,6 +657,10 @@ def cmd_mark(a) -> int:
         if not fm.get("baseline"):
             r = git(root, "rev-parse", "HEAD")
             fm["baseline"] = r.stdout.strip() if r.returncode == 0 else "NO_VCS"
+            if r.returncode != 0:
+                print("WARN  no git baseline: evidence can't be tied to the code, and diff, scope and review-diff gates "
+                      "are skipped for this item")
+                append_log(d, "NO_VCS: no git baseline; code-fingerprint, scope and review-diff gates skipped")
             dirty = dirty_files(root) if r.returncode == 0 else []
             if dirty and not a.allow_dirty:
                 raise SwError("working tree has uncommitted changes outside .shipwright/ "
@@ -1313,7 +1324,7 @@ def cmd_catalog(a) -> int:
 def cmd_route(a) -> int:
     if a.use:  # the agent picked a guide by judgment (e.g. from library/INDEX.md): validate and log it
         g = a.use.strip("/").removeprefix("library/").removesuffix("/GUIDE.md")
-        if not (LIBRARY / g / "GUIDE.md").is_file():
+        if g not in {x["guide"] for x in catalog()}:
             raise SwError(f"no guide {g}: see library/INDEX.md")
         if a.id:
             append_log(item_dir(find_root(a.root), a.id), f"GUIDE: {g} (chosen)")
@@ -1353,6 +1364,7 @@ def cmd_friction(a) -> int:
     return 0
 
 
+RESERVED_LOG = ("GUIDE:", "STATUS ", "EVIDENCE ", "RED ", "CREATED ", "SET ")
 COUNCIL_ROUNDS = ("round-1", "round-2", "round-3")
 
 
@@ -1495,6 +1507,8 @@ def cmd_council_check(a) -> int:
 
 
 def cmd_log(a) -> int:
+    if a.text.lstrip().startswith(RESERVED_LOG):
+        raise SwError(f"log lines starting with {RESERVED_LOG[0]} are written by `route`, and the others by the gates")
     d = item_dir(find_root(a.root), a.id)
     append_log(d, a.text)
     return 0
@@ -1662,6 +1676,7 @@ def main(argv: list[str] | None = None) -> int:
     s = sub.add_parser("design-check", help="check UI files: compiled engine plus JSX rules (0 clean, 2 findings)")
     s.add_argument("paths", nargs="+")
     s.add_argument("--json", action="store_true")
+    s.add_argument("--allow-no-engine", action="store_true", help="accept a JSX-only run where no engine exists")
     s.set_defaults(fn=cmd_design_check)
     s = sub.add_parser("catalog", help="(re)build library/catalog.json from every bundled guide (--check: verify)")
     s.add_argument("--check", action="store_true")

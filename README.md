@@ -1,4 +1,10 @@
-# Shipwright (Claude Code plugin)
+<p align="center">
+  <img src="assets/logo.png" alt="Shipwright logo" width="360">
+</p>
+
+<h1 align="center">Shipwright</h1>
+
+<p align="center">A Claude Code plugin that takes work from intent to verified, reviewed code.</p>
 
 One plugin that takes a feature, bug fix, refactor, or whole product from intent to verified,
 reviewed code. It contains:
@@ -18,16 +24,91 @@ It brings together, in one workflow:
 
 The prose gates are backed by a stdlib-only script (`shipwright.py`) that refuses unsafe status changes.
 
+## Install
+
+**You need:** Claude Code 2.1.275 or later and Python 3.9+. Git is optional but recommended. On Windows, Claude
+Code also needs Git Bash, which runs the plugin's hooks.
+
+Inside Claude Code, run:
+
+```text
+/plugin install shipwright --marketplace faizankhan789/Shipwright
+```
+
+Or from your terminal:
+
+```bash
+claude plugin install shipwright --marketplace faizankhan789/Shipwright
+```
+
+Then restart Claude Code. On older versions, add the marketplace first:
+
+```bash
+claude plugin marketplace add faizankhan789/Shipwright
+claude plugin install shipwright@shipwright
+```
+
+**Check it worked:** `claude plugin list` should show `shipwright@shipwright` as enabled. Then, in any
+project, ask for something to be built or fixed, for example "Add a logout button". Shipwright starts on its own,
+or you can say "use shipwright".
+
+**Update:**
+
+```bash
+claude plugin marketplace update shipwright
+claude plugin update shipwright@shipwright
+```
+
+**Uninstall:**
+
+```bash
+claude plugin uninstall shipwright@shipwright
+claude plugin marketplace remove shipwright
+```
+
+**Install from a local clone** (for working on the plugin itself):
+
+```bash
+git clone https://github.com/faizankhan789/Shipwright.git
+claude plugin marketplace add ./Shipwright
+claude plugin install shipwright@shipwright
+```
+
+### Avoid overlapping skills
+
+Shipwright bundles its own design, debugging, testing and process guides. Other plugins, skills or hooks that
+trigger on the same requests will run alongside it and can stop it from firing. In testing, a setup with
+session hooks that force other skills first cut Shipwright's trigger rate from about 97% to about 64%. For best
+results, disable:
+- standalone plugins and skills that cover the same ground (planning, TDD, debugging, design, UI)
+- hooks that force-load other skills on session start or on each prompt
+
+## How it works in practice
+
+| You say | Shipwright does |
+|---|---|
+| "Fix the off-by-one in pagination" | Reproduce, failing test, fix, evidence, done |
+| "Add CSV export to reports" | Investigate, one round of questions, plan, your approval, test-first build, review lenses, evidence, your acceptance |
+| "Build a habit-tracking app" | Brief, expert council, architecture, vertical slices (walking skeleton first), each slice built and reviewed |
+| "Design the architecture for X" | Problem analysis, council debate, `decision.md` solution design, then stops until you ask to build |
+| "...in auto mode" | No checkpoints: decisions are logged, and real intent gaps block the item |
+| (new session) | Resumes open work from `.shipwright/` in your project |
+
+Work state lives in `.shipwright/` in your project. Commit it to share plans and decisions with your team, or
+add it to `.gitignore` to keep them local.
+
 ## Layout
 
 ```
+assets/                           logo and plugin icon
 .claude-plugin/plugin.json        plugin manifest
-.claude-plugin/marketplace.json   local marketplace ("shipwright-local") listing this plugin
+.claude-plugin/marketplace.json   marketplace ("shipwright") listing this plugin
 agents/                           17 agents, GENERATED from the skill's council/lens/discipline files
 hooks/hooks.json                  SessionStart resume nudge, UserPromptSubmit router, PreToolUse guard, PostToolUse design check
 hooks/design_check.py             runs the design check after each UI edit
 hooks/py.sh                       finds a working Python on any OS (python3, python or py)
 hooks/guard_state.py              blocks hand-edits to evidence, logs and plan gate fields
+hooks/route_prompt.py             recognises tasks and routes them to the skill
 skills/shipwright/
   SKILL.md                        entry: laws, sizing, phases, agents, library, modes, red flags
   phases/                         clarify, frame (L), council (L/D), plan, build, review, ship (+ learn)
@@ -35,15 +116,19 @@ skills/shipwright/
   disciplines/                    tdd, debugging, verification, feedback, ui
   lenses/                         blind, edge-case, verification-gap, intent-alignment, rules, ui-craft, security
   templates/                      plan-S, plan-M, brief, architecture, adr, context, council-brief, solution-design, implementer-prompt
-  scripts/shipwright.py                   state + gates CLI (Python 3.9+, no dependencies)
+  scripts/shipwright.py           state, gates, routing and design-check CLI (Python 3.9+, no dependencies)
+  scripts/design_rules.py         JSX-aware UI checks for .tsx/.jsx
   library/
     ROUTING.md                    which guide for which situation + precedence rules
-    INDEX.md                      every guide with its purpose (generated)
-    ui/ coding/ debugging/ testing/ security/ mobile/ backend-infra/ ai-ml/ integrations/ product/
+    INDEX.md                      section map, then every guide with its purpose (generated)
+    catalog.json                  all 168 guides by section, used for routing (generated)
+    routing.json                  curated routing rules
+    shipwright_ui/ shipwright_coding/ shipwright_debugging/ shipwright_testing/ shipwright_security/
+    shipwright_mobile/ shipwright_backend_infra/ shipwright_ai_ml/ shipwright_integrations/ shipwright_product/
 tools/build_agents.py             regenerates agents/ from the skill files (--check verifies sync)
-docs/DORA-VALIDATION.md          DORA metrics + AI Capabilities Model validation and measurement plan
-tests/test_shipwright.py                  68 tests: every gate and every loophole found in two audits, the evidence fingerprint, the council and initiative checks, the guard hook, structure, agents, manifests
-evals/cases.json                  trigger + behavior cases for measuring the plugin with real runs
+docs/DORA-VALIDATION.md           DORA metrics + AI Capabilities Model validation and measurement plan
+tests/test_shipwright.py          97 tests: gates, evidence, council, routing, design check, hooks, portability, structure
+evals/                            labelled prompts, live trigger test, model routing test
 ```
 
 ## Expert council (solution architecture)
@@ -124,35 +209,18 @@ The agents are generated from `skills/shipwright/lenses/*.md` and `disciplines/*
 skill and the agents can never drift apart. After editing a lens or discipline, run
 `python3 tools/build_agents.py`.
 
-## Installing (you run these)
-
-From Claude Code:
-
-```text
-/plugin marketplace add <absolute path to this folder>
-/plugin install shipwright@shipwright-local
-```
-
-**To keep one workflow in charge:**
-- Disable any standalone plugins and skills whose content Shipwright now bundles. They would
-  otherwise trigger alongside it.
-- Remove session hooks that force-load other process skills (brainstorming, build-from-best, the
-  design-skill autoload).
-
 ## Maintaining
 
 ```bash
-python3 ~/.shipwright-build/vendor.py --plugin .  # rebuild the library (private build tooling, kept outside this repo)
 python3 tools/build_agents.py                    # regenerate agents after editing lenses/disciplines
-python3 -m unittest discover -s tests -v         # 68 tests
+python3 skills/shipwright/scripts/shipwright.py catalog  # regenerate catalog.json and INDEX.md
+python3 -m unittest discover -s tests -v         # 97 tests
 claude plugin validate .                         # manifest check
 ```
 
 ## License
 
 Shipwright is licensed under the **Shipwright License** (see [LICENSE](LICENSE)).
-Third-party material it includes is listed, with the notices its licenses require, in
-[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
 ## Where the design came from
 
@@ -163,5 +231,5 @@ scores, coherence and enforcement, with one workflow owner and script gates.
 A trial run on a real feature (size M, auto mode) reached `done` with 4 review lenses and 18
 triaged findings. Its 13 friction points have been fixed.
 
-Those numbers are design targets plus one trial, not a benchmark. To measure the plugin, run
-the cases in `evals/cases.json` with and without it (`claude plugin eval` is available).
+Those numbers are design targets plus one trial, not a delivery benchmark. Trigger and routing accuracy are
+measured in `evals/`; DORA outcomes need real project data (see `docs/DORA-VALIDATION.md`).

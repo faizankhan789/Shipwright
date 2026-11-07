@@ -604,6 +604,48 @@ class SwTest(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertIn("baseline: NO_VCS", plan.read_text())
 
+    # --- security review ---
+    def test_gate_rejects_lookalike_tool_and_shell_syntax(self):
+        m = load_cli()
+        real = f"python3 {SW} design-check site.css"
+        self.assertEqual(m.design_check_targets(real), ["site.css"])
+        self.assertIsNone(m.design_check_targets("python3 /tmp/fake/shipwright.py design-check site.css"))
+        for bad in (real + " || true", real + " | cat", real + "; true", real + " > /dev/null", "$(x) " + real):
+            self.assertIsNone(m.design_check_targets(bad), bad)
+
+    def test_log_cannot_forge_gate_lines(self):
+        self.new()
+        for text in ("GUIDE: shipwright_ui/shipwright-ui-polish", "STATUS done -> done", "EVIDENCE exit=0 true"):
+            self.sw("log", "001", text, ok=False)
+        self.sw("log", "001", "DECISION: mention GUIDE: in passing is fine")
+
+    def test_route_use_accepts_only_catalog_guides(self):
+        self.new()
+        for bad in ("../../../phases", "shipwright_ui/../shipwright_ui/shipwright-ui-polish", "shipwright_ui"):
+            self.sw("route", "--use", bad, "--id", "001", ok=False)
+
+    def test_no_git_baseline_is_logged(self):
+        plan = self.s_building()
+        self.assertIn("NO_VCS: no git baseline", (plan.parent / "log.md").read_text())
+
+    def test_missing_engine_fails_closed_unless_acknowledged(self):
+        import argparse, contextlib, io, os as _os
+        from unittest import mock
+        m = load_cli()
+        (self.root / "site.css").write_text("h1{color:#111}\n")
+        (self.root / "A.tsx").write_text("export const A = () => <b>hi</b>;\n")
+        args = lambda paths, allow: argparse.Namespace(paths=paths, json=False, allow_no_engine=allow)
+        cwd = _os.getcwd()
+        _os.chdir(self.root)
+        try:
+            with mock.patch.object(m, "design_engine", return_value=None), contextlib.redirect_stdout(io.StringIO()), \
+                    contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(m.cmd_design_check(args(["site.css"], False)), 1)
+                self.assertEqual(m.cmd_design_check(args(["site.css"], True)), 0)
+                self.assertEqual(m.cmd_design_check(args(["A.tsx"], False)), 0)  # JSX rules still ran
+        finally:
+            _os.chdir(cwd)
+
     # --- second audit loopholes ---
     def test_small_item_too_big_or_risky_must_review(self):
         self.git_repo()
@@ -1161,6 +1203,10 @@ class SkillStructureTest(unittest.TestCase):
         market = json.loads((REPO / ".claude-plugin" / "marketplace.json").read_text())
         self.assertEqual(plugin["name"], "shipwright")
         self.assertEqual(market["plugins"][0]["name"], "shipwright")
+        self.assertEqual(market["name"], "shipwright")
+        self.assertTrue((REPO / plugin["icon"]).is_file())
+        self.assertEqual(plugin["version"], market["plugins"][0]["version"])
+        self.assertIn('src="assets/logo.png"', (REPO / "README.md").read_text())
 
     def test_skill_md_stays_lean(self):
         words = len((self.skill / "SKILL.md").read_text().split())

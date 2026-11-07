@@ -1,6 +1,6 @@
 {
-  "name": "shipwright-local",
-  "description": "Local marketplace for the Shipwright plugin",
+  "name": "shipwright",
+  "description": "Marketplace for the Shipwright plugin",
   "owner": {
     "name": "Faizan Khan"
   },
@@ -9,7 +9,7 @@
       "name": "shipwright",
       "source": "./",
       "description": "Intent to verified, reviewed code: one skill, internal review/implementer/debugger/UI agents, bundled UI and coding guides.",
-      "version": "1.0.0"
+      "version": "1.1.0"
     }
   ]
 }
