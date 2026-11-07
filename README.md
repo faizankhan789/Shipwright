@@ -8,9 +8,9 @@
 A Claude Code plugin where a script, not a promise, decides when work is done.</p>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-1.1.0-3b82f6">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.2.0-3b82f6">
   <img alt="Claude Code plugin" src="https://img.shields.io/badge/Claude%20Code-plugin-0a0f1e">
-  <img alt="Guides" src="https://img.shields.io/badge/guides-168-22c55e">
+  <img alt="Guides" src="https://img.shields.io/badge/guides-173-22c55e">
   <img alt="Agents" src="https://img.shields.io/badge/agents-17-a855f7">
   <img alt="Python" src="https://img.shields.io/badge/python-3.9%2B-f59e0b">
   <img alt="Platforms" src="https://img.shields.io/badge/macOS%20%7C%20Linux%20%7C%20Windows-supported-64748b">
@@ -277,7 +277,7 @@ sequenceDiagram
 
 ## Guide explorer
 
-168 specialist guides ship inside the plugin. They never trigger on their own and cost nothing until a phase opens one. Claude picks by the meaning of your request, and a keyword shortlist helps. Open a section to browse it:
+173 specialist guides ship inside the plugin. They never trigger on their own and cost nothing until a phase opens one. Claude picks by the meaning of your request, and a keyword shortlist helps. Open a section to browse it:
 
 <details>
 <summary><b>UI and design</b> · 31 guides · pages, app screens, critique, polish, motion, mobile UI, Figma, accessibility</summary>
@@ -349,6 +349,15 @@ sequenceDiagram
 
 </details>
 
+<details>
+<summary><b>Documents and media</b> · 5 guides · Word, PDF, PowerPoint and Excel files, codebase explainer videos</summary>
+
+`codebase-flow-video` · `docx` · `pdf` · `pptx` · `xlsx`
+
+These produce a file, so they skip plans and gates. Some need local tools: LibreOffice and Poppler for rendering and recalculation, and Node.js with ffmpeg for video.
+
+</details>
+
 ## Measured results
 
 | What was tested | Result |
@@ -356,8 +365,8 @@ sequenceDiagram
 | Fires when it should (live `claude` sessions, Shipwright alone) | 77 of 80 new prompts; the misses mention files absent from the empty test repo |
 | Stays silent when it should | 40 of 40 |
 | Right guide chosen (model, index and shortlist) | 132 of 136 |
-| Every guide reachable by context | 168 of 168 |
-| Test suite | 99 tests pass on macOS and Linux |
+| Every guide reachable by context | 173 of 173 |
+| Test suite | 107 tests pass on macOS and Linux |
 
 <details>
 <summary><b>Platform support</b></summary>
@@ -437,7 +446,7 @@ For `.tsx` and `.jsx` it checks what's on each element: inline styles, Tailwind 
 ```bash
 python3 tools/build_agents.py                            # regenerate agents after editing lenses or disciplines
 python3 skills/shipwright/scripts/shipwright.py catalog  # regenerate catalog.json and INDEX.md
-python3 -m unittest discover -s tests -v                 # 99 tests
+python3 -m unittest discover -s tests -v                 # 107 tests
 claude plugin validate .                                 # manifest check
 python3 evals/run_triggers.py --mode isolated            # live trigger test
 ```
@@ -455,4 +464,4 @@ tests/               test suite
 
 ## License
 
-Shipwright is licensed under the **Shipwright License** (see [LICENSE](LICENSE)).
+Shipwright is licensed under the **Shipwright License** (see [LICENSE](LICENSE)). The four document guides (`docx`, `pdf`, `pptx`, `xlsx`) stay under Apache-2.0; see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

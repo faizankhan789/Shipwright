@@ -1,0 +1,15 @@
+{"cases": [
+ {"prompt": "write a word doc report on q3 sales", "trigger": true},
+ {"prompt": "make a powerpoint deck for the board", "trigger": true},
+ {"prompt": "create an excel spreadsheet of expenses", "trigger": true},
+ {"prompt": "extract the tables from this pdf", "trigger": true},
+ {"prompt": "merge these two PDFs", "trigger": true},
+ {"prompt": "make a video explaining this repo", "trigger": true},
+ {"prompt": "convert this csv to xlsx", "trigger": true},
+ {"prompt": "draft a word document for the proposal", "trigger": true},
+ {"prompt": "Add PDF export to the invoices page", "trigger": true},
+ {"prompt": "Build a PDF parser in Rust", "trigger": true},
+ {"prompt": "make a chart of monthly revenue", "trigger": false},
+ {"prompt": "What is a PDF form field?", "trigger": false},
+ {"prompt": "Explain the difference between .doc and .docx", "trigger": false}
+]}

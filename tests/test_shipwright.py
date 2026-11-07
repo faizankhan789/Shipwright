@@ -523,6 +523,36 @@ class SwTest(unittest.TestCase):
         self.assertIn("not named in Tasks, Code Map or Implementation Notes: stray.py", r.stdout)
         self.assertNotIn(": app.py", r.stdout)
 
+    def test_scope_creep_accepts_a_declared_folder(self):
+        # a vendored folder of many files is declared once as `folder/`; a bare prefix without the slash is not enough
+        self.git_repo()
+        plan = self.s_building()
+        (self.root / "app.py").write_text("x = 2\n")
+        (self.root / "vendor" / "lib").mkdir(parents=True)
+        (self.root / "vendor" / "lib" / "a.py").write_text("a = 1\n")
+        (self.root / "vendorx.py").write_text("b = 1\n")
+        plan.write_text(plan.read_text().replace("## Implementation Notes", "## Implementation Notes\n\n- app.py\n- `vendor/`"))
+        self.sw("verify", "001", "--", "true")
+        r = self.sw("mark", "001", "verified", ok=False)
+        self.assertNotIn("vendor/lib/a.py", r.stdout)
+        self.assertIn(": vendorx.py", r.stdout)
+
+    def test_scope_folder_must_be_declared_outside_verification(self):
+        # a command argument such as `pytest tests/` must not whitelist every file under tests/
+        self.git_repo()
+        plan = self.s_building()
+        (self.root / "app.py").write_text("x = 2\n")
+        (self.root / "lib").mkdir()
+        (self.root / "lib" / "b.py").write_text("b = 1\n")
+        (self.root / "tests").mkdir()
+        (self.root / "tests" / "t.py").write_text("t = 1\n")
+        text = plan.read_text().replace("## Implementation Notes", "## Implementation Notes\n\n- app.py, lib/, done")
+        plan.write_text(text.replace("## Verification\n", "## Verification\n\n- `pytest tests/` -- expected: pass\n", 1))
+        self.sw("verify", "001", "--", "true")
+        r = self.sw("mark", "001", "verified", ok=False)
+        self.assertNotIn("lib/b.py", r.stdout)
+        self.assertIn(": tests/t.py", r.stdout)
+
     def test_initiative_diff(self):
         self.git_repo()
         self.sw("initiative", "Billing")
@@ -870,6 +900,44 @@ class RoutingTest(unittest.TestCase):
             self.assertNotEqual(run("route", "--use", "shipwright_ui/nope", "--id", "001").returncode, 0)
             log = next(Path(t, ".shipwright", "work").glob("001-*")) / "log.md"
             self.assertIn("GUIDE: shipwright_ui/shipwright-ui-polish (chosen)", log.read_text())
+
+    def test_router_gap_set(self):
+        # real misses from an installed-plugin session: tasks must fire, non-software asks stay silent with no guides
+        self.check_set("router_gaps_cases.json")
+        cases = json.loads((REPO / "evals" / "router_gaps_cases.json").read_text())["cases"]
+        bad = []
+        for c in cases:
+            gs = [r["guides"][0] for r in self.m.route(c["prompt"], top=3)]
+            if c.get("no_guides") and gs:
+                bad.append(f"{c['prompt']!r} offered {gs}")
+            if c.get("not_guide") and any(c["not_guide"] in g for g in gs):
+                bad.append(f"{c['prompt']!r} offered {gs}")
+        self.assertEqual(bad, [])
+
+    def test_route_has_an_absolute_floor(self):
+        # weak single-word overlaps must return nothing rather than an unrelated guide
+        self.assertEqual(self.m.route("lol thanks, long day. have a good weekend!"), [])
+
+    def test_feature_that_mentions_a_document_keeps_the_workflow(self):
+        for t in ("Add PDF export to the invoices page", "Build a PDF parser in Rust", "Generate Excel reports from the API",
+                  "Write a CLI that converts docx to markdown", "Build a microservice that renders PDFs",
+                  "Write a webhook handler that generates PDF receipts", "Make the video autoplay muted on mobile"):
+            self.assertNotIn(self.m.classify_prompt(t), (None, "document"), t)
+
+    def test_hook_sends_document_asks_to_the_guide_without_the_workflow(self):
+        def hook(prompt):
+            r = subprocess.run([sys.executable, str(REPO / "hooks" / "route_prompt.py")], input=json.dumps({"prompt": prompt}),
+                               capture_output=True, text=True)
+            return r.stdout
+        doc = hook("write a word doc report on q3 sales")
+        self.assertIn(str(REPO / "skills" / "shipwright" / "library" / "shipwright_documents" / "shipwright-docx" / "GUIDE.md"), doc)
+        self.assertNotIn("invoke the `shipwright` skill", doc)
+        self.assertIn("invoke the `shipwright` skill", hook("Add PDF export to the invoices page"))
+        self.assertEqual(hook("make a chart of monthly revenue"), "")
+        self.assertIn("shipwright-pptx", hook("turn this pdf into a powerpoint"))
+
+    def test_document_sets(self):
+        self.check_set("trigger_cases_documents.json")
 
     def test_paraphrase_set_triggers(self):
         # indirect phrasings: the hook must still recognise the task (routing them is the model's job, see evals)
@@ -1233,7 +1301,23 @@ class SkillStructureTest(unittest.TestCase):
         self.assertEqual(market["name"], "shipwright")
         self.assertTrue((REPO / plugin["icon"]).is_file())
         self.assertEqual(plugin["version"], market["plugins"][0]["version"])
+        self.assertIn(f"badge/version-{plugin['version']}-", (REPO / "README.md").read_text())
         self.assertIn('src="assets/logo.png"', (REPO / "README.md").read_text())
+
+    def test_document_guides_are_bundled_with_their_notices(self):
+        lib = self.skill / "library" / "shipwright_documents"
+        names = ["shipwright-docx", "shipwright-pdf", "shipwright-pptx", "shipwright-xlsx", "shipwright-codebase-flow-video"]
+        self.assertEqual(sorted(p.name for p in lib.iterdir() if p.is_dir()), sorted(names))
+        for n in names:
+            self.assertRegex((lib / n / "GUIDE.md").read_text(), rf"\A---\nname: {n}\n")
+        notices = (REPO / "THIRD-PARTY-NOTICES.md").read_text()
+        self.assertIn("Apache License", notices)
+        self.assertIn("TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION", notices)
+        for n in names[:4]:
+            self.assertIn(n, notices)
+            self.assertRegex((lib / n / "GUIDE.md").read_text(), r"(?m)^license: Apache-2\.0")
+            self.assertIn("Modified from an Apache-2.0 original", (lib / n / "GUIDE.md").read_text())
+        self.assertIn("THIRD-PARTY-NOTICES.md", (REPO / "LICENSE").read_text())
 
     def test_skill_md_stays_lean(self):
         words = len((self.skill / "SKILL.md").read_text().split())

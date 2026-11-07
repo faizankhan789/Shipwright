@@ -1,12 +1,11 @@
 ---
 name: shipwright
-description: Use when the user hands over a feature, bug fix, refactor, tests to write, migration, or whole product to build and expects working, verified code; when asked to analyze a problem, design or architect a solution, or plan a system before coding; when resuming earlier build work; when asked to plan, slice, or review a change; or when the user says "shipwright". Not for questions, explanations, or one-line edits the user is dictating.
+description: Use when the user hands over a feature, bug fix, refactor, tests to write, migration, or whole product to build and expects working, verified code; when asked to analyze a problem, design or architect a solution, or plan a system before coding; when resuming earlier build work; when asked to plan, slice, or review a change; when asked to create or edit a Word, PDF, PowerPoint or Excel file or a codebase explainer video; or when the user says "shipwright". Not for questions, explanations, or dictated edits.
 ---
 
 # Shipwright
 
-Turn intent into verified, reviewed code. Plans, decisions, and evidence live on disk so any
-session can resume, and a script enforces the gates that prose alone cannot.
+Turn intent into verified, reviewed code. Plans, decisions, and evidence live on disk, and a script enforces the gates.
 
 **Violating the letter of a rule is violating its spirit.**
 
@@ -42,7 +41,7 @@ session can resume, and a script enforces the gates that prose alone cannot.
 | Collect skill friction | `SW friction` |
 | DORA metrics | `SW deploy --items 001,002` · `SW deploy-failed D1` · `SW deploy-recovered D1` · `SW metrics [--days 30]` |
 
-If Python is unavailable, follow the same files and statuses by hand and say the gates are unenforced.
+Without Python, follow the same files by hand and say the gates are unenforced.
 
 ## Step 0: Orient
 
@@ -58,16 +57,17 @@ Run `SW resume`. Read `.shipwright/context.md`.
 | **S** | Intent clear; about ≤100 changed lines, ≤3 files; no new dependency, schema, or public API | clarify-lite → build (TDD) → self-review → verify → ship |
 | **M** | One user-facing goal, even across layers | clarify → plan → **approval** → build → review (lenses) → verify → ship |
 | **L** | Two or more independently shippable goals, or a new product | frame (brief, **council**, architecture, slices) → **approval** → each slice runs as M |
+| **Doc** | The deliverable is a file (Word, PDF, PowerPoint, Excel) or an explainer video, not software | Skip Step 0 and plans. Follow the matching `library/shipwright_documents/` guide, run its own checks (validate, recalc, render) and show their output before claiming done |
 | **D** (design only) | The user wants a problem analyzed, a solution designed or architected, or a technical plan, but no code yet | clarify → **council** → solution design (`decision.md`) → **approval**. Build only when asked; it then continues as L or M |
 
-- Bugs: debugging Phase 1 first, then size the fix.
-- Say the size and why in one line. The human can override it.
-- If the work grows, stop, say so, and move up a size. Never move down silently.
+- Bugs: debugging Phase 1 first.
+- State the size and why in one line. The human can override it.
+- If work grows, stop, say so, and move up a size. Never move down silently.
 - Split rule: split only for top-level goals that could each merge as a separate PR. Never split "validate and show errors".
 
 ## Phases
 
-Read each file when you enter that phase, not before.
+Read each file on entering its phase.
 
 | Phase | File | Exit gate |
 |---|---|---|
@@ -85,8 +85,8 @@ Disciplines, loaded when they apply: `disciplines/tdd.md` (every build), `discip
 
 ## Library (bundled specialist guides)
 
-`library/` holds 168 bundled guides in 10 categories: ui, coding, debugging, testing, security,
-mobile, backend-infra, ai-ml, integrations, and product. They never trigger on their own. Choose by context: read `library/INDEX.md` (section map, then one line per
+`library/` holds 173 bundled guides in 11 categories: ui, coding, debugging, testing, security,
+mobile, backend-infra, ai-ml, integrations, product, and documents. Choose by context: read `library/INDEX.md` (section map, then one line per
 guide), take `SW route "<task>"` as a hint, and log your pick with `SW route --use <section/guide> --id <id>`.
 `library/ROUTING.md` has the precedence rules.
 
@@ -108,7 +108,7 @@ guide), take `SW route "<task>"` as a hint, and log your pick with `SW route --u
 
 ## Working with other skills
 
-- Shipwright owns the workflow: no other process skills in parallel. Its library replaces overlapping design, debugging and testing skills; unrelated domain skills are fine inside a phase.
+- Shipwright owns the workflow: no other process skills in parallel. Unrelated domain skills are fine inside a phase.
 
 ## Internal agents
 
@@ -130,13 +130,11 @@ gives absolute paths: the plan or diff, and `Skill folder: <this skill's folder>
 | `shipwright:shipwright-ui-reviewer` | Review (UI diffs) | the diff path, and screenshot paths |
 | `shipwright:shipwright-security-reviewer` | Review (trust boundaries touched, or high risk) | the diff path |
 
-**If the agents aren't available** (the skill was installed without the plugin), dispatch a
-general-purpose subagent with: "Read `<skill>/lenses/<lens>.md` (or
+**If the agents aren't available,** dispatch a general-purpose subagent with: "Read `<skill>/lenses/<lens>.md` (or
 `templates/implementer-prompt.md`) and follow it", plus the same inputs. Without any subagents,
 do the work yourself, sequentially, reading each lens file fresh.
 
-**Model choice:** the agents set their own models. Reviewers and the debugger use the strongest
-model; the implementer inherits yours. For mechanical plans you may pass a faster model.
+**Model choice:** the agents set their own models; for mechanical plans you may pass a faster one.
 
 ## Red flags: stop, you are rationalizing
 
@@ -146,7 +144,7 @@ model; the implementer inherits yours. For mechanical plans you may pass a faste
 | "I'll write the tests after" | Tests written after pass immediately and prove nothing. Delete the code and start test-first. |
 | "Probably X, let me just fix it" | That is a guess, not a root cause. Go to debugging Phase 1. |
 | "Should work now" / "looks good" | That is not evidence. Run it through `SW verify`. |
-| "The subagent said it passed" | A report is not evidence. Re-run the checks yourself. |
+| "The subagent said it passed" | A report is not evidence. Re-run checks. |
 | "I'll tweak the approved intent slightly" | It is frozen. Ask the human; `SW check` will catch the edit. |
-| "Reviewer is wrong, skip it" | Write a `false` verdict with the evidence that disproves it. |
+| "Reviewer is wrong, skip it" | Write a `false` verdict with disproving evidence. |
 | "Another fix attempt will do it" (3rd time) | Stop. Question the design and escalate. |

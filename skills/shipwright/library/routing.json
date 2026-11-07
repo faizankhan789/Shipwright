@@ -44,15 +44,51 @@
     "copy of",
     "better than",
     "replica",
-    "reverse engineer",
-    "competitor"
+    "competitor",
+    "(recreat(e|ing)|replicat(e|ing)|rebuild(ing)?) (?!(?:(?:the|this|that|a|an|our|my|its|all) )?(?:\\w+ )?(?:bugs?|issues?|errors?|crash(es)?|failures?|problems?|images?|index(es)?|indices|cache|migrations?|tests?|containers?|database|db|schema|builds?|env\\w*|venv|lockfile|node_modules|tables?|views?)\\b)\\w+"
    ],
    "guides": [
     "shipwright_product/shipwright-build-from-best",
     "shipwright_product/shipwright-reverse-engineer-anything",
     "shipwright_product/shipwright-replica-recon"
    ],
-   "weight": 1
+   "weight": 2
+  },
+  {
+   "id": "reverse-engineering",
+   "kind": "plan",
+   "keywords": [
+    "reverse[- ]engineer(ing|ed)?",
+    "decompil(e|es|ing|ed)",
+    "disassembl(e|es|ing|ed)"
+   ],
+   "guides": [
+    "shipwright_product/shipwright-reverse-engineer-anything"
+   ],
+   "weight": 2
+  },
+  {
+   "id": "android-reverse",
+   "kind": "build",
+   "keywords": [
+    "(reverse[- ]engineer\\w*|decompil\\w*|disassembl\\w*|unpack\\w*).{0,40}(apks?|android|dex)"
+   ],
+   "guides": [
+    "shipwright_mobile/shipwright-android-reverse-engineering"
+   ],
+   "weight": 3
+  },
+  {
+   "id": "scraping",
+   "kind": "build",
+   "keywords": [
+    "scrap(e|es|ing|er|ers)",
+    "crawl(s|ing|er|ers)?"
+   ],
+   "guides": [
+    "shipwright_integrations/shipwright-firecrawl"
+   ],
+   "weight": 3
   },
   {
    "id": "data-model",
@@ -341,7 +377,8 @@
    "guides": [
     "shipwright_ui/shipwright-art-direction"
    ],
-   "weight": 2
+   "weight": 2,
+   "unless": "\\b(pen[- ]?test|penetration|scan|audit|harden|secure|scrap\\w+|crawl\\w*|reverse[- ]engineer)\\b[^.]{0,40}\\b(website|site|homepage|portfolio)\\b"
   },
   {
    "id": "app-screen",
@@ -579,7 +616,8 @@
     "null pointer",
     "cannot read propert(y|ies)",
     "track (it )?down",
-    "traceback"
+    "traceback",
+    "freez(es|ing)?"
    ],
    "guides": [
     "shipwright_debugging/shipwright-systematic-debugging"
@@ -727,15 +765,15 @@
    "id": "pentest",
    "kind": "security",
    "keywords": [
-    "pentest",
-    "penetration test",
+    "pen[- ]?test(s|ing)?",
+    "penetration test(s|ing)?",
     "security scan"
    ],
    "guides": [
     "shipwright_security/shipwright-penetration-testing-with-strix",
     "shipwright_security/shipwright-web-app-penetration-testing"
    ],
-   "weight": 1
+   "weight": 3
   },
   {
    "id": "a11y",
@@ -875,6 +913,18 @@
    ]
   },
   {
+   "id": "helm",
+   "kind": "build",
+   "keywords": [
+    "helm charts?",
+    "helm"
+   ],
+   "guides": [
+    "shipwright_backend_infra/shipwright-helm-chart-builder"
+   ],
+   "weight": 3
+  },
+  {
    "id": "kubernetes",
    "kind": "build",
    "keywords": [
@@ -977,6 +1027,73 @@
     "shipwright_coding/shipwright-finishing-a-development-branch"
    ],
    "weight": 2
+  },
+  {
+   "id": "word",
+   "kind": "document",
+   "keywords": [
+    "word doc(ument)?s?",
+    "ms word",
+    "word files?",
+    "\\.?docx"
+   ],
+   "guides": [
+    "shipwright_documents/shipwright-docx"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "pdf-file",
+   "kind": "document",
+   "keywords": [
+    "pdfs?"
+   ],
+   "guides": [
+    "shipwright_documents/shipwright-pdf"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "powerpoint",
+   "kind": "document",
+   "keywords": [
+    "power ?points?",
+    "\\.?pptx",
+    "slide ?decks?",
+    "slides",
+    "pitch decks?",
+    "decks?",
+    "presentations?"
+   ],
+   "guides": [
+    "shipwright_documents/shipwright-pptx"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "excel",
+   "kind": "document",
+   "keywords": [
+    "excel",
+    "spreadsheets?",
+    "\\.?xlsx"
+   ],
+   "guides": [
+    "shipwright_documents/shipwright-xlsx"
+   ],
+   "weight": 1
+  },
+  {
+   "id": "explainer-video",
+   "kind": "document",
+   "keywords": [
+    "videos?\\b.{0,60}\\b(repo|repository|codebase|project|architecture|product|launch|walkthrough|demo|app|how (this|it) works)",
+    "(repo|repository|codebase|project|architecture|product|launch|walkthrough|demo|app|how (this|it) works)\\b.{0,40}\\bvideos?"
+   ],
+   "guides": [
+    "shipwright_documents/shipwright-codebase-flow-video"
+   ],
+   "weight": 1
   }
  ]
 }

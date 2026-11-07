@@ -594,6 +594,46 @@
    "headings": "Troubleshooting Wizard Step 1: Find and Read Configuration Step 2: Triage Common Connection Errors Step 3: Read Known Issues Step 4: Formulate a Configuration Step 5: Run Diagnostic Commands Step 6: Check GitHub for Existing Issues"
   },
   {
+   "guide": "shipwright_documents/shipwright-codebase-flow-video",
+   "section": "shipwright_documents",
+   "kind": "document",
+   "name": "codebase flow video",
+   "description": "Use when the user wants an animated explainer video of how a codebase, app, AI agent system or data pipeline works end to end, a product/launch walkthrough video for clients, executives, investors or LinkedIn, or a complete map of every step and branch in a repo (FLOW.md). Triggers on \"make a video of how this works\", \"explain this repo in a video\", \"LinkedIn video of my project\".",
+   "headings": "Shipwright Codebase Flow Video Overview Invocation options Outputs (in `<repo>/flow-video/`) Workflow Tools (all in `<skill-dir>/renderer/`) Common mistakes"
+  },
+  {
+   "guide": "shipwright_documents/shipwright-docx",
+   "section": "shipwright_documents",
+   "kind": "document",
+   "name": "docx",
+   "description": "Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx) or Word templates (.dotx). Triggers include: any mention of Microsoft Word Documents, such as 'Word doc', 'word document', '.docx', '.dotx', 'microsoft doc'. Also use when extracting or reorganizing content from .docx or .dotx files, inserting or replacing images in documents, find-and-replace in Word files, working with tracked changes or comments, or converting content into a polished Word document. If the user asks for a deliverable as a Word or .docx file (to download, email or print), use th",
+   "headings": "DOCX creation, editing, and analysis Creating with docx-js \u2014 gotchas Verify the output Editing existing documents edit unpacked/word/document.xml in place \u2014 do NOT reformat or pretty-print redlining? add --author \"<the name you redlined under>\" to check every edit is tracked Comments Against an already-unpacked directory (preferred when also placing markers) Against a .docx directly Dependencies"
+  },
+  {
+   "guide": "shipwright_documents/shipwright-pdf",
+   "section": "shipwright_documents",
+   "kind": "document",
+   "name": "pdf",
+   "description": "Use this skill whenever the user wants to do anything with PDF files. This includes reading or extracting text/tables from PDFs, combining or merging multiple PDFs into one, splitting PDFs apart, rotating pages, adding watermarks, creating new PDFs, filling PDF forms, encrypting/decrypting PDFs, extracting images, and OCR on scanned PDFs to make them searchable. If the user mentions a .pdf file or asks to produce one, use this skill.",
+   "headings": "PDF Processing Guide Overview Quick Start Read a PDF Extract text Python Libraries pypdf - Basic Operations pdfplumber - Text and Table Extraction Combine all tables reportlab - Create PDFs Add text Add a line"
+  },
+  {
+   "guide": "shipwright_documents/shipwright-pptx",
+   "section": "shipwright_documents",
+   "kind": "document",
+   "name": "pptx",
+   "description": "Use this skill any time a .pptx or .potx file is involved in any way \u2014 as input, output, or both. This includes: creating slide decks, pitch decks, or presentations as PowerPoint (.pptx) files; reading, parsing, or extracting text from any .pptx or .potx file (even if the extracted content will be used elsewhere, like in an email, summary, or creating a different type of slide deck); editing, modifying, or updating existing presentations; combining or splitting slide files; working with templates (.potx), layouts, speaker notes, or comments. Trigger whenever the user asks for a PowerPoint or .",
+   "headings": "PPTX creation, editing, and analysis Scripts Creating with pptxgenjs \u2014 gotchas Structured decks Editing existing decks and templates reorder / delete slides = edit <p:sldIdLst> in ppt/presentation.xml edit slide content in ppt/slides/slideN.xml Deck content and flow Design Ideas Before Starting Color Palettes For Each Slide"
+  },
+  {
+   "guide": "shipwright_documents/shipwright-xlsx",
+   "section": "shipwright_documents",
+   "kind": "document",
+   "name": "xlsx",
+   "description": "Use this skill any time a spreadsheet file is the primary input or output. This means any task where the user wants to: open, read, edit, or fix an existing .xlsx, .xlsm, .xltx, .csv, or .tsv file (e.g., adding columns, computing formulas, formatting, charting, cleaning messy data); create a new spreadsheet from scratch or from other data sources; or convert between tabular file formats. Trigger especially when the user references a spreadsheet file by name or path \u2014 even casually (like \\\"the xlsx in my downloads\\\") \u2014 and wants something done to it or produced from it. Also trigger for cleanin",
+   "headings": "XLSX creation, editing, and analysis Requirements for every output Recalculate (mandatory whenever the file contains formulas) Choosing formulas that survive verification openpyxl gotchas Financial models Dependencies"
+  },
+  {
    "guide": "shipwright_integrations/shipwright-connect-recommend",
    "section": "shipwright_integrations",
    "kind": "build",

@@ -1,0 +1,65 @@
+{
+ "about": "Document and media asks in plain language, often without the file-type word. A model-eval set for run_routing_model.py (does a model pick the shipwright_documents guide from INDEX.md); the keyword router is not expected to catch these.",
+ "cases": [
+  {
+   "prompt": "Our lawyer sent back a contract with tracked changes. Accept them all and add a comment on clause 4.",
+   "trigger": true,
+   "area": "word-file"
+  },
+  {
+   "prompt": "Write up the incident as a formal report I can send to the client as a .docx",
+   "trigger": true,
+   "area": "word-file"
+  },
+  {
+   "prompt": "I have a scanned invoice and need the line items out of it as text",
+   "trigger": true,
+   "area": "pdf-file"
+  },
+  {
+   "prompt": "Fill in this government form with my details and flatten it so nobody can edit it",
+   "trigger": true,
+   "area": "pdf-file"
+  },
+  {
+   "prompt": "Stitch these three statements into one file and rotate the second page",
+   "trigger": true,
+   "area": "pdf-file"
+  },
+  {
+   "prompt": "I'm presenting to the board on Friday, build me 10 slides on our runway",
+   "trigger": true,
+   "area": "slides-file"
+  },
+  {
+   "prompt": "Take this .pptx and restyle it to match our brand colours",
+   "trigger": true,
+   "area": "slides-file"
+  },
+  {
+   "prompt": "Build a three-statement financial model with live formulas that I can open in Excel",
+   "trigger": true,
+   "area": "excel-file"
+  },
+  {
+   "prompt": "Clean up this messy csv and give it back as a workbook with a pivot sheet",
+   "trigger": true,
+   "area": "excel-file"
+  },
+  {
+   "prompt": "Make an animated explainer showing how our agent pipeline works end to end, from the code",
+   "trigger": true,
+   "area": "explainer-video"
+  },
+  {
+   "prompt": "I want a LinkedIn walkthrough video of this product for investors",
+   "trigger": true,
+   "area": "explainer-video"
+  },
+  {
+   "prompt": "Our PDF annotation toolbar in the iOS app loses highlights after rotating",
+   "trigger": true,
+   "guide": "pdf-annotations"
+  }
+ ]
+}

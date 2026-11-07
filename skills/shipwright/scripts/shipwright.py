@@ -734,7 +734,12 @@ def changed_files(root: Path, base: str) -> list[str]:
 def scope_creep(root: Path, fm: dict, body: str) -> list[str]:
     secs = sections(body)
     named = " ".join(secs.get(n, "") for n in ("Tasks", "Code Map", "Implementation Notes", "Verification"))
-    return [f for f in changed_files(root, fm.get("baseline", "")) if f not in named]
+    # a folder declared in Tasks, Code Map or Implementation Notes (`path/`, ending in a slash) covers every file
+    # under it, e.g. a vendored guide; Verification commands such as `pytest tests/` do not count
+    declared = " ".join(secs.get(n, "") for n in ("Tasks", "Code Map", "Implementation Notes"))
+    folders = re.findall(r"[\w.@~-][\w./@~-]*/(?=[`\s),;]|$)", declared)
+    return [f for f in changed_files(root, fm.get("baseline", ""))
+            if f not in named and not any(f.startswith(d) for d in folders)]
 
 
 def cmd_verify(a) -> int:
@@ -1024,7 +1029,7 @@ def routing_rules() -> list[dict]:
 SECTION_KIND = {"shipwright_ui": "ui", "shipwright_debugging": "debug", "shipwright_testing": "test",
                 "shipwright_security": "security", "shipwright_product": "plan", "shipwright_coding": "build",
                 "shipwright_mobile": "build", "shipwright_backend_infra": "build", "shipwright_ai_ml": "build",
-                "shipwright_integrations": "build"}
+                "shipwright_integrations": "build", "shipwright_documents": "document"}
 STOP = set("a an the and or of to in on for with is are be it this that my our your we i you me us at by from as "
            "use used using when how what so can will just also into over any all not no do does did should would "
            "please pls make get need want like some more most very".split())
@@ -1127,31 +1132,87 @@ def bm25(query: str) -> list[tuple[float, dict]]:
     return out
 
 
+# Asks whose deliverable is a file rather than software: they go straight to a shipwright_documents guide with no
+# workflow, or stay silent when no guide fits (charts, general video). Code context keeps a real feature a task.
+ARTIFACT = (r"word doc(?:ument)?s?|ms word|\.?docx|power ?points?|\.?pptx|slide ?decks?|slides|pitch decks?|decks?|"
+            r"presentations?(?! layer| logic| component)|excel|spreadsheets?|\.?xlsx|pdfs?|(?<!helm )charts?|plots?|"
+            r"(?:bar|line|pie|scatter) graphs?|infographics?|videos?")
+OPENER = (r"^\s*(?:(?:hi|hey|hello|ok(?:ay)?|so|pls|please)[!,.]*\s+)*"
+          r"(?:(?:can|could|would|will) you\s+(?:please\s+)?|(?:please\s+)?help me\s+(?:to\s+)?|"
+          r"(?:i|we)(?:'d like| need| want)(?: you)?(?: to)?\s+)?")
+FILE_EXT = r"(?<=\w)\.(?:docx?|pptx?|xlsx?|pdf)"
+WANT_A = r"^\s*(?:i|we)(?:'d like| need| want| would like)\s+(?=(?:an?|some|the)\b)"  # "we need a pitch deck"
+ARTIFACT_RE = re.compile(r"(?:" + OPENER + r"(?:write|make|create|generate|draft|prepare|produce|build|extract|convert|"
+                         r"fill(?: out| in)?|merge|combine|split|edit|turn|put|draw|plot)\b|" + WANT_A + r")[^\n]{0,80}?"
+                         r"(?:(?<![\w-])(?:" + ARTIFACT + r")|" + FILE_EXT + r")\b", re.I)
+CODE_CONTEXT_RE = re.compile(r"\b(apps?|apis?|endpoints?|features?|buttons?|(?<!-)pages?|screens?|dashboards?|components?|librar(?:y|ies)|"
+                             r"parsers?|services?|scripts?|functions?|modules?|class|backend|frontend|servers?|websites?|sites?|"
+                             r"exports?|imports?|uploads?|downloads?|players?|streaming|viewers?|generators?|renderers?|"
+                             r"pipelines?|jobs?|cron|bots?|tools?|plugins?|extensions?|databases?|tests?|bugs?|errors?|code|responsive|"
+                             r"cli|programs?|handlers?|webhooks?|lambdas?|microservices?|views?|branch(?:es)?|mobile|"
+                             r"autoplay|renders?|ios|android|"
+                             r"faster|slower|react|vue|svelte|next\.?js|d3|recharts|typescript|javascript|python|rust|swift|"
+                             r"kotlin|flutter)\b", re.I)
+VIDEO_ASK_RE = re.compile(OPENER + r"(?:make|create|generate|produce|render|record)\b[^\n]{0,80}\bvideos?\b|"
+                          r"^\s*explain\b[^\n]{0,80}\b(?:in|as|with) an? (?:\w+ )?video\b", re.I)
+VIDEO_SUBJECT_RE = re.compile(r"\b(repo|repository|codebase|project|architecture|product|launch|walkthrough|demo|"
+                              r"how (?:this|it) works)\b|\b(?:this|our|my) app\b", re.I)
+VIDEO_FEATURE_RE = re.compile(r"\b(players?|uploads?|stream\w*|calls?|chat|features?|components?|pages?|buttons?|"
+                              r"thumbnails?)\b", re.I)
+# BM25 score below which a guide with no curated rule hit is noise: thanks-and-chat prompts reach about 9 on shared words
+ROUTE_FLOOR = 9.0
+
+
+def is_artifact_request(text: str) -> bool:
+    text = text.replace("\u2019", "'")
+    if VIDEO_ASK_RE.search(text) and VIDEO_SUBJECT_RE.search(text) and not VIDEO_FEATURE_RE.search(text):
+        return True
+    return bool(ARTIFACT_RE.search(text)) and not CODE_CONTEXT_RE.search(text)
+
+
+def rule_hits(rule: dict, text: str) -> int:
+    hits = 0
+    for kw in rule["keywords"]:
+        m = re.search(r"(?<!\w)(?:" + kw + r")(?!\w)", text, re.I)
+        if m:
+            hits += 1 + min(m.group(0).count(" "), 3)
+    return hits
+
+
 def route(text: str, top: int = 2) -> list[dict]:
     """Context routing over the whole catalog (BM25 on every guide's name, description and headings, with
     developer-synonym expansion), boosted by the curated precision rules. Returns up to `top` guides, at most one
-    primary UI direction, as dicts with id, kind and guides=[guide]."""
+    primary UI direction, as dicts with id, kind and guides=[guide]. Empty when nothing truly fits: a guide without
+    a rule hit must clear ROUTE_FLOOR, and a rule's optional `unless` regex switches that rule off."""
+    if is_artifact_request(text):
+        rules = [r for r in routing_rules() if r["kind"] == "document" and rule_hits(r, text)]
+        return [{"id": r["id"], "kind": "document", "guides": [r["guides"][0]], "score": 0} for r in rules[:top]]
     scores: dict = {}
     meta: dict = {}
     for sc, g in bm25(text):
         scores[g["guide"]] = sc
         meta[g["guide"]] = (g["kind"], g["name"])
     best_bm = max(scores.values(), default=0)
+    curated = set()
     for i, rule in enumerate(routing_rules()):
-        hits = sum(1 + kw.count(" ") for kw in rule["keywords"]
-                   if re.search(r"(?<!\w)(?:" + kw + r")(?!\w)", text, re.I))
+        if rule["kind"] == "document" or (rule.get("unless") and re.search(rule["unless"], text, re.I)):
+            continue
+        hits = rule_hits(rule, text)
         if not hits:
             continue
         g = rule["guides"][0]
         boost = hits * rule.get("weight", 1) * max(best_bm, 4.0) * 0.6 - i * 1e-6
         scores[g] = scores.get(g, 0) + boost
         meta[g] = (rule["kind"], rule["id"])
+        curated.add(g)
     ranked = sorted(scores.items(), key=lambda x: -x[1])
     picked, seen_ui_direction = [], False
     floor = ranked[0][1] * 0.35 if ranked else 0
     for g, sc in ranked:
         if len(picked) >= top or sc < floor:
             break
+        if g not in curated and sc < ROUTE_FLOOR:
+            continue
         if g.endswith(("shipwright-art-direction", "shipwright-interface-design")):
             if seen_ui_direction:
                 continue
@@ -1163,7 +1224,7 @@ def route(text: str, top: int = 2) -> list[dict]:
 
 QUESTION_RE = re.compile(r"^\s*(?:(?:wait|ok(ay)?|so|hmm+|hey|um+|quick (?:q|question)|genuinely|honestly),?\s+)*"
                          r"(what('?s)?|whats|why|who|when|which|where|explain|describe|define|tell me|"
-                         r"is (it|there|this)|are (there|you)|do(es)? (it|this|you)|how (does|do|is|are|come)\b|"
+                         r"is (it|there|this)|is \w+(?: \w+)? (?:legal|allowed|safe|possible|ok|okay|worth)|are (there|you)|do(es)? (it|this|you)|how (does|do|is|are|come)\b|"
                          r"can you (explain|tell|describe|walk me through)|summari[sz]e|compare)\b", re.I)
 # an explicit request inside a question ("why does X crash? fix it", "can you fix ...") still makes it a task
 REQUEST_RE = re.compile(r"\b(please|pls|plz|can you|could you|go ahead and|and then|then)\s+(fix|build|add|implement|create|make|"
@@ -1174,12 +1235,13 @@ NOT_A_TASK_RE = re.compile(r"\b(not asking (you )?to (change|fix|edit)|just (cur
 DICTATED_RE = re.compile(r"^\s*(change|rename|replace|set|update|bump)\b[^.\n]{0,80}\bto\b[^.\n]{0,60}"
                          r"(\bin\b \S+\.\w+|\bon line\b|\bline \d+)", re.I)
 TASK_RE = re.compile(r"\b(build|create|make|add|implement|fix|debug|refactor|design|architect|plan|write|"
-                     r"(we|i) (really )?need\b|need (a|an|to)\b|it'?d be (great|nice|good) if|would be (great|nice) if|"
+                     r"(we|i) (really )?need\b|needs? (a|an|to)\b|it'?d be (great|nice|good) if|would be (great|nice) if|"
                      r"can we\b|let'?s (add|build|fix|keep going|continue|make|get)|keep going|go through|clean up|"
                      r"cache\b|shard\b|get (it|this) under|figure out (what|why)|find (the|it).{0,20}\b(and )?fix|"
                      r"put\b.{0,40}\bbehind|wire up|hook up|turn (this|it|that) into|dockeri[sz]e|containeri[sz]e|roll (it )?out|"
                      r"support|handle|allow|let users|enable|integrate|"
                      r"fine[- ]?tune|train (a |the )?model|address (the )?(review|feedback|comments)|"
+                     r"reverse[- ]engineer(?:ing)?|decompil(?:e|ing)|pen[- ]?test(?:ing)?|scrap(?:e|ing)|crawl(?:ing)?|"
                      r"set ?up|migrate|optimi[sz]e|speed (it |this |things )?up|deploy|ship|"
                      r"integrate|convert|port|upgrade|resume|continue|pick up where|review (my|this|the) (pr|code|diff|change)|"
                      r"(is|are) broken|doesn'?t work|not working|crash(es|ing)?|failing|throws?|error|bug|slow|laggy|"
@@ -1190,7 +1252,9 @@ DESIGN_ONLY_RE = re.compile(r"\b(design|architect|plan)\b.*\b(system|architectur
 
 
 # A request that opens with a development verb is a task ("Ship 3.4 to prod", "rebase my branch ...").
-DEV_VERBS = ("add|adjust|assemble|put|align|allow|automate|batch|block|bootstrap|build|bump|cache|change|clean|configure|connect|"
+DEV_VERBS = ("add|adjust|assemble|audit|put|align|allow|automate|batch|block|bootstrap|build|bump|cache|change|clean|"
+             r"clone(?![^.\n]{0,40}\b(?:repo|repository)\b)(?!\s+(?:git@|https?://))|configure|connect|crawl|decompile|disassemble|fuzz|"
+             "pen[- ]?test|plot|recreate|replicate|reverse[- ]engineer|scan|scrape|unpack|do an? \\w+ (?:test|audit|scan|review)|perform|conduct|"
              "containeri[sz]e|convert|create|cut|debug|decouple|dedupe|delete|deploy|deprecate|design|diagnose|disable|"
              "dockeri[sz]e|document|drop|embed|enable|enforce|expose|extend|extract|fine[- ]?tune|finish|fix|generate|get|"
              "handle|harden|hook|implement|import|improve|index|inline|install|instrument|integrate|introduce|investigate|"
@@ -1215,10 +1279,13 @@ def classify_prompt(text: str) -> str | None:
     t = text.strip()
     if not t or t.startswith("/") or len(t) < 12:
         return None
-    if re.search(r"\b(resume|continue|pick up where|where (were|did) we)\b", t, re.I):
+    artifact = is_artifact_request(t)
+    if not artifact and re.search(r"\b(resume|continue|pick up where|where (were|did) we)\b", t, re.I):
         return "resume"
     if NOT_A_TASK_RE.search(t) or DICTATED_RE.search(t):
         return None
+    if artifact and re.search(r"\b(?:in|as) an? (?:\w+ )?video\b", t, re.I):  # "explain this repo in a video"
+        return "document" if route(t, top=1) else None
     q = QUESTION_RE.search(t)
     if q and not REQUEST_RE.search(t):
         # "when/where/which/if ..." opens conditions as often as questions: only a question with a "?"
@@ -1226,6 +1293,8 @@ def classify_prompt(text: str) -> str | None:
             return None
     if READ_ONLY_RE.search(t) and not REQUEST_RE.search(t) and not re.search(r"\band (then )?(fix|update|change|add|remove)\b", t, re.I):
         return None
+    if artifact:
+        return "document" if route(t, top=1) else None
     # a request often comes after the problem description: check the start of every sentence
     sentences = [x for x in re.split(r"(?<=[.!?;:])\s+|\n+", t) if x.strip()]
     imperative = any(IMPERATIVE_RE.search(x) for x in sentences)
@@ -1236,7 +1305,8 @@ def classify_prompt(text: str) -> str | None:
     if DESIGN_ONLY_RE.search(t) and not re.search(r"\b(build|implement|code|fix)\b", t, re.I):
         return "design"
     rules = route(t, top=1)
-    return rules[0]["kind"] if rules else "build"
+    kind = rules[0]["kind"] if rules else "build"
+    return "build" if kind == "document" else kind  # a feature that happens to touch a document is still software
 
 
 SECTION_TITLES = {
@@ -1250,11 +1320,17 @@ SECTION_TITLES = {
     "shipwright_ai_ml": "AI and ML: RAG, agents, LLM cost, Hugging Face models and training",
     "shipwright_integrations": "Integrations: Stripe payments and billing, web scraping",
     "shipwright_product": "Product building: research the best existing products, clone and launch",
+    "shipwright_documents": "Documents and media: Word, PDF, PowerPoint and Excel files, codebase explainer videos",
 }
 
 
 # Disambiguation for guides that cover similar ground: when to pick which.
 USE_FOR = {
+    "shipwright-docx": "Use to create, read or edit a Word file (.docx): reports, letters, tracked changes, comments.",
+    "shipwright-pdf": "Use for a PDF file itself: extract text or tables, merge, split, fill forms, OCR. For PDF markup inside a mobile app use pdf-annotations.",
+    "shipwright-pptx": "Use to create, read or edit a PowerPoint file (.pptx): slide decks, pitch decks, presentations.",
+    "shipwright-xlsx": "Use to create, read or edit an Excel file (.xlsx) or spreadsheet: models, formulas, trackers, CSV to Excel.",
+    "shipwright-codebase-flow-video": "Use for an animated video that explains how a repo or product works, or a launch walkthrough video.",
     "shipwright-art-direction": "Use for any public or marketing page: landing, pricing, campaign, portfolio, homepage. Primary for pages that sell.",
     "shipwright-frontend-design": "Use only to choose a visual direction before building; for building a page use art-direction or interface-design.",
     "shipwright-interface-design": "Use for building app screens: dashboards, admin, settings, tables, forms, user management.",

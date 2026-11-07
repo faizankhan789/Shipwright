@@ -37,7 +37,7 @@ def run_case(prompt: str, mode: str, max_turns: int, timeout: int) -> dict:
             out = subprocess.run(cmd, cwd=d, capture_output=True, text=True, timeout=timeout).stdout
         except subprocess.TimeoutExpired as e:
             out = (e.stdout or b"").decode() if isinstance(e.stdout, bytes) else (e.stdout or "")
-    skills, tools, first_text = [], [], ""
+    skills, tools, reads, first_text = [], [], [], ""
     for line in out.splitlines():
         try:
             ev = json.loads(line)
@@ -52,10 +52,13 @@ def run_case(prompt: str, mode: str, max_turns: int, timeout: int) -> dict:
                 tools.append(block.get("name"))
                 if block.get("name") == "Skill":
                     skills.append(str((block.get("input") or {}).get("skill", "")))
+                if block.get("name") == "Read":
+                    reads.append(str((block.get("input") or {}).get("file_path", "")))
             if isinstance(block, dict) and block.get("type") == "text" and not first_text:
                 first_text = block.get("text", "")[:160]
-    fired = any("shipwright" in s for s in skills)
-    return {"fired": fired, "skills": skills, "tools": tools, "first_text": first_text}
+    # document asks skip the skill: reading the guide the hook named counts as firing
+    fired = any("shipwright" in s for s in skills) or any("/shipwright_documents/" in r for r in reads)
+    return {"fired": fired, "skills": skills, "reads": reads, "tools": tools, "first_text": first_text}
 
 
 def main() -> int:

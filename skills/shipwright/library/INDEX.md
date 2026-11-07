@@ -9,6 +9,7 @@ fits. Log your pick with `shipwright.py route --use <section/guide> --id <item>`
 - `shipwright_backend_infra` (13): Backend and infrastructure: APIs, databases, SQL, Docker, CI/CD, Kubernetes, Terraform, observability, MCP
 - `shipwright_coding` (26): Coding practice: tests, plans, reviews, refactors, releases, flags, migrations, onboarding
 - `shipwright_debugging` (11): Debugging: bugs, crashes, performance, memory, browser and Android issues
+- `shipwright_documents` (5): Documents and media: Word, PDF, PowerPoint and Excel files, codebase explainer videos
 - `shipwright_integrations` (9): Integrations: Stripe payments and billing, web scraping
 - `shipwright_mobile` (23): Mobile: Android, Kotlin, Compose, KMP, Swift and iOS
 - `shipwright_product` (13): Product building: research the best existing products, clone and launch
@@ -101,6 +102,14 @@ fits. Log your pick with `shipwright.py route --use <section/guide> --id <item>`
 - `shipwright_debugging/shipwright-performance-profiler`: Use when a page, endpoint, query or job is slow: latency, load time, throughput.
 - `shipwright_debugging/shipwright-systematic-debugging`: Use for any bug, error, exception, crash or wrong behavior: root cause first.
 - `shipwright_debugging/shipwright-troubleshooting`: Uses Chrome DevTools MCP and documentation to troubleshoot connection and target issues.
+
+## shipwright_documents
+
+- `shipwright_documents/shipwright-codebase-flow-video`: Use for an animated video that explains how a repo or product works, or a launch walkthrough video.
+- `shipwright_documents/shipwright-docx`: Use to create, read or edit a Word file (.docx): reports, letters, tracked changes, comments.
+- `shipwright_documents/shipwright-pdf`: Use for a PDF file itself: extract text or tables, merge, split, fill forms, OCR. For PDF markup inside a mobile app use pdf-annotations.
+- `shipwright_documents/shipwright-pptx`: Use to create, read or edit a PowerPoint file (.pptx): slide decks, pitch decks, presentations.
+- `shipwright_documents/shipwright-xlsx`: Use to create, read or edit an Excel file (.xlsx) or spreadsheet: models, formulas, trackers, CSV to Excel.
 
 ## shipwright_integrations
 

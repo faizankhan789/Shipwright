@@ -7,4 +7,5 @@
  "security-auth": "security", "dependencies-secrets": "dependency|secrets", "rag-llm": "rag", "huggingface-training": "huggingface|trl",
  "mcp-server": "mcp", "stripe-payments": "stripe", "android": "android|compose|kotlin", "ios-swift": "swift",
  "release-deploy": "release|changelog", "merge-pr": "finishing-a-development-branch", "pr-feedback": "receiving-code-review",
- "codebase-onboarding": "onboarding|code-tour"}
+ "codebase-onboarding": "onboarding|code-tour",
+ "word-file": "shipwright-docx", "pdf-file": "shipwright-pdf", "slides-file": "shipwright-pptx", "excel-file": "shipwright-xlsx", "explainer-video": "codebase-flow-video"}

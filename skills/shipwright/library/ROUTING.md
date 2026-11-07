@@ -1,6 +1,6 @@
 # Library routing
 
-The library bundles 168 specialist guides in 10 categories. Shipwright's own disciplines are
+The library bundles 173 specialist guides in 11 categories. Shipwright's own disciplines are
 the floor and always apply; a guide adds depth when the work calls for it.
 
 **How to choose (by context, two steps):** read the section map at the top of `library/INDEX.md`, pick the
@@ -8,9 +8,11 @@ section that fits the request's meaning, then the guide whose "Use for" line fit
 --top 5` gives a keyword shortlist as a hint; log your final pick with `route --use <section/guide> --id <item>`.
 
 **The keyword engine:** `shipwright.py route "<task in your own words>" --id <item> --top 5`.
-- It matches the whole request against **every** guide in `library/catalog.json` (all 168, by name,
+- It matches the whole request against **every** guide in `library/catalog.json` (all 173, by name,
   description and headings, with developer-synonym expansion). The curated rules in `routing.json` add a
   precision boost. It logs `GUIDE:` lines. The prompt hook uses the same engine.
+- It can return nothing: a guide with no curated rule hit needs a real match (`ROUTE_FLOOR`).
+- A request whose deliverable is a Word, PDF, PowerPoint or Excel file or an explainer video goes straight to its `shipwright_documents` guide, with no plan or gates. Charts and general video have no guide and stay silent. Code context (an app, page, API, script, parser) keeps it a software task.
 - Treat the result as a ranked shortlist and pick by context. If a better guide is in `INDEX.md`, log your
   own pick: `shipwright.py route --use <section/guide> --id <item>`.
 
@@ -33,6 +35,7 @@ section that fits the request's meaning, then the guide whose "Use for" line fit
 | **ai-ml** (24) | RAG, agents, Hugging Face |
 | **integrations** (9) | Stripe, Firecrawl |
 | **product** (13) | build-from-best and the replica-* app-building chain |
+| **documents** (5) | Word, PDF, PowerPoint, Excel files, codebase explainer videos |
 
 ## Precedence (read before loading any guide)
 
@@ -62,7 +65,7 @@ section that fits the request's meaning, then the guide whose "Use for" line fit
    - At most one primary guide, plus one supporting guide per task. Never a whole category.
    - Read a guide's main file first, and open its references only when a step needs them.
 5. **Tools and accounts.**
-   - Some guides drive external tools: Strix, Figma, Chrome DevTools, Stripe, Hugging Face, Firecrawl.
+   - Some guides drive external tools: Strix, Figma, Chrome DevTools, Stripe, Hugging Face, Firecrawl, and for documents LibreOffice, Poppler, Node.js, ffmpeg and Playwright.
    - Use them only when that tool is available and the human has authorized it.
    - Security scanners may only target what the human owns or has explicit permission to test.
 6. **Missing guide:** use the installed skill with the same name if there is one. Otherwise the Shipwright floor applies alone.

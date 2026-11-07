@@ -1,0 +1,631 @@
+{
+ "about": "Real failures from an installed-plugin session, plus variants. kind=document: the deliverable is a file, so the hook names the guide and asks for no workflow. no_guides=true: nothing bundled fits, so the hook stays silent. The keep-as-task group guards against over-silencing.",
+ "cases": [
+  {
+   "prompt": "reverse engineer this apk",
+   "trigger": true,
+   "guide": "android-reverse-engineering"
+  },
+  {
+   "prompt": "clone notion",
+   "trigger": true,
+   "guide": "build-from-best"
+  },
+  {
+   "prompt": "pentest my website",
+   "trigger": true,
+   "guide": "penetration-testing",
+   "not_guide": "art-direction"
+  },
+  {
+   "prompt": "scrape linkedin jobs",
+   "trigger": true,
+   "guide": "firecrawl"
+  },
+  {
+   "prompt": "decompile this binary and work out how the licence check works",
+   "trigger": true,
+   "guide": "reverse-engineer"
+  },
+  {
+   "prompt": "reverse engineer the Spotify desktop app",
+   "trigger": true,
+   "guide": "reverse-engineer"
+  },
+  {
+   "prompt": "clone Linear but for law firms",
+   "trigger": true,
+   "guide": "build-from-best"
+  },
+  {
+   "prompt": "run a penetration test against staging",
+   "trigger": true,
+   "guide": "penetration-testing"
+  },
+  {
+   "prompt": "pen test our public API",
+   "trigger": true,
+   "guide": "penetration-testing"
+  },
+  {
+   "prompt": "crawl competitor prices every night",
+   "trigger": true,
+   "guide": "firecrawl"
+  },
+  {
+   "prompt": "build a scraper for Amazon reviews",
+   "trigger": true,
+   "guide": "firecrawl"
+  },
+  {
+   "prompt": "write a word doc report on q3 sales",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-docx"
+  },
+  {
+   "prompt": "extract the tables from this pdf",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pdf"
+  },
+  {
+   "prompt": "make a powerpoint deck for the board",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pptx"
+  },
+  {
+   "prompt": "make a video explaining this repo",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-codebase-flow-video"
+  },
+  {
+   "prompt": "create an excel spreadsheet of expenses",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-xlsx"
+  },
+  {
+   "prompt": "make a chart of monthly revenue",
+   "trigger": false,
+   "no_guides": true
+  },
+  {
+   "prompt": "turn these notes into a Word document",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-docx"
+  },
+  {
+   "prompt": "create a slide deck about our roadmap",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pptx"
+  },
+  {
+   "prompt": "merge these two PDFs",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pdf"
+  },
+  {
+   "prompt": "build an Excel model of our runway",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-xlsx"
+  },
+  {
+   "prompt": "generate a bar chart of signups by month",
+   "trigger": false,
+   "no_guides": true
+  },
+  {
+   "prompt": "clone this repo",
+   "trigger": false
+  },
+  {
+   "prompt": "git clone https://github.com/acme/widgets.git",
+   "trigger": false
+  },
+  {
+   "prompt": "Add PDF export to the invoices page",
+   "trigger": true
+  },
+  {
+   "prompt": "Add a revenue chart to the dashboard",
+   "trigger": true
+  },
+  {
+   "prompt": "Build a PDF parser in Rust",
+   "trigger": true
+  },
+  {
+   "prompt": "Write a script that merges PDFs",
+   "trigger": true
+  },
+  {
+   "prompt": "Generate Excel reports from the API",
+   "trigger": true
+  },
+  {
+   "prompt": "Add a video player to the course page",
+   "trigger": true
+  },
+  {
+   "prompt": "Fix the chart rendering bug",
+   "trigger": true,
+   "guide": "systematic-debugging"
+  },
+  {
+   "prompt": "Create a helm chart for the api",
+   "trigger": true,
+   "guide": "helm"
+  },
+  {
+   "prompt": "recreate Trello from scratch in Next.js",
+   "trigger": true,
+   "guide": "build-from-best"
+  },
+  {
+   "prompt": "replicate Stripe's checkout experience",
+   "trigger": true,
+   "guide": "build-from-best"
+  },
+  {
+   "prompt": "i want a clone of Airbnb",
+   "trigger": true,
+   "guide": "build-from-best"
+  },
+  {
+   "prompt": "make an Uber clone for dog walkers",
+   "trigger": true,
+   "guide": "build-from-best"
+  },
+  {
+   "prompt": "figure out how this obfuscated minified bundle works by reverse engineering it",
+   "trigger": true,
+   "guide": "reverse-engineer"
+  },
+  {
+   "prompt": "disassemble this firmware image",
+   "trigger": true,
+   "guide": "reverse-engineer"
+  },
+  {
+   "prompt": "decompile this android app and find the api keys",
+   "trigger": true,
+   "guide": "android-reverse"
+  },
+  {
+   "prompt": "unpack this apk and list its endpoints",
+   "trigger": true,
+   "guide": "android-reverse"
+  },
+  {
+   "prompt": "audit my website for security holes",
+   "trigger": true,
+   "guide": "security",
+   "not_guide": "art-direction"
+  },
+  {
+   "prompt": "scan our app for vulnerabilities",
+   "trigger": true,
+   "guide": "security"
+  },
+  {
+   "prompt": "pentest the staging environment",
+   "trigger": true,
+   "guide": "penetration"
+  },
+  {
+   "prompt": "scrape product prices from these 20 sites",
+   "trigger": true,
+   "guide": "firecrawl"
+  },
+  {
+   "prompt": "write a crawler for job boards",
+   "trigger": true,
+   "guide": "firecrawl"
+  },
+  {
+   "prompt": "pull data from this website every hour by scraping it",
+   "trigger": true,
+   "guide": "firecrawl"
+  },
+  {
+   "prompt": "draft a word document for the proposal",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-docx"
+  },
+  {
+   "prompt": "please make a pdf of these meeting notes",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pdf"
+  },
+  {
+   "prompt": "can you create a powerpoint on our Q4 plan",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pptx"
+  },
+  {
+   "prompt": "i need a spreadsheet tracking my rent",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-xlsx"
+  },
+  {
+   "prompt": "put this data in an excel file",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-xlsx"
+  },
+  {
+   "prompt": "create a pie chart of market share",
+   "trigger": false,
+   "no_guides": true
+  },
+  {
+   "prompt": "make a short video about our product",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-codebase-flow-video"
+  },
+  {
+   "prompt": "convert this csv to xlsx",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-xlsx"
+  },
+  {
+   "prompt": "fill out this pdf form",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pdf"
+  },
+  {
+   "prompt": "we need a pitch deck for investors",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pptx"
+  },
+  {
+   "prompt": "Add a chart component to the admin panel",
+   "trigger": true,
+   "guide": "interface-design"
+  },
+  {
+   "prompt": "Build a video upload feature",
+   "trigger": true
+  },
+  {
+   "prompt": "Fix the PDF download button",
+   "trigger": true,
+   "guide": "systematic-debugging"
+  },
+  {
+   "prompt": "Create a service that renders invoices as PDF",
+   "trigger": true
+  },
+  {
+   "prompt": "Build a slide deck editor app",
+   "trigger": true
+  },
+  {
+   "prompt": "Make the excel import faster",
+   "trigger": true
+  },
+  {
+   "prompt": "clone the repo and run the tests",
+   "trigger": false
+  },
+  {
+   "prompt": "what does scraping mean",
+   "trigger": false
+  },
+  {
+   "prompt": "is reverse engineering legal?",
+   "trigger": false
+  },
+  {
+   "prompt": "explain what a pentest is",
+   "trigger": false
+  },
+  {
+   "prompt": "rebuild Discord as a self-hosted app",
+   "trigger": true,
+   "guide": "build-from-best"
+  },
+  {
+   "prompt": "clone Figma's multiplayer cursors",
+   "trigger": true,
+   "guide": "build-from-best"
+  },
+  {
+   "prompt": "we should build something like Notion for lawyers",
+   "trigger": true,
+   "guide": "build-from-best"
+  },
+  {
+   "prompt": "reverse-engineer the Instagram private API",
+   "trigger": true,
+   "guide": "reverse-engineer"
+  },
+  {
+   "prompt": "analyze this .so file and tell me what it does, decompile it if you have to",
+   "trigger": true,
+   "guide": "reverse-engineer"
+  },
+  {
+   "prompt": "decompile classes.dex from this package",
+   "trigger": true,
+   "guide": "android-reverse"
+  },
+  {
+   "prompt": "our site needs a pentest before launch",
+   "trigger": true,
+   "guide": "penetration"
+  },
+  {
+   "prompt": "do a penetration test on the login flow",
+   "trigger": true,
+   "guide": "penetration"
+  },
+  {
+   "prompt": "harden my website against attacks",
+   "trigger": true,
+   "guide": "security",
+   "not_guide": "art-direction"
+  },
+  {
+   "prompt": "pen-testing the mobile API is next, start it",
+   "trigger": true,
+   "guide": "penetration"
+  },
+  {
+   "prompt": "scrape every article from this blog into markdown",
+   "trigger": true,
+   "guide": "firecrawl"
+  },
+  {
+   "prompt": "build a web crawler in Python",
+   "trigger": true,
+   "guide": "firecrawl"
+  },
+  {
+   "prompt": "get all the listings from zillow by scraping",
+   "trigger": true,
+   "guide": "firecrawl"
+  },
+  {
+   "prompt": "write a Word doc summarizing this contract",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-docx"
+  },
+  {
+   "prompt": "make slides for tomorrow's standup",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pptx"
+  },
+  {
+   "prompt": "create a pdf resume for me",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pdf"
+  },
+  {
+   "prompt": "generate an xlsx with the budget",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-xlsx"
+  },
+  {
+   "prompt": "draw a line graph of temperatures",
+   "trigger": false,
+   "no_guides": true
+  },
+  {
+   "prompt": "hey can you draft a docx cover letter",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-docx"
+  },
+  {
+   "prompt": "extract text from this scanned pdf",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pdf"
+  },
+  {
+   "prompt": "i want a video of this animation",
+   "trigger": false,
+   "no_guides": true
+  },
+  {
+   "prompt": "make an infographic about sleep",
+   "trigger": false,
+   "no_guides": true
+  },
+  {
+   "prompt": "build a presentation for the sales kickoff",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pptx"
+  },
+  {
+   "prompt": "Add a CSV and Excel export to the reports feature",
+   "trigger": true
+  },
+  {
+   "prompt": "Build a PDF viewer component in React",
+   "trigger": true
+  },
+  {
+   "prompt": "The video player freezes on Safari",
+   "trigger": true,
+   "guide": "systematic-debugging"
+  },
+  {
+   "prompt": "Add a bar chart to the analytics page",
+   "trigger": true,
+   "guide": "interface-design"
+  },
+  {
+   "prompt": "Refactor the presentation layer",
+   "trigger": true
+  },
+  {
+   "prompt": "Generate PDF invoices in the billing service",
+   "trigger": true
+  },
+  {
+   "prompt": "Extract the presentation layer into its own module",
+   "trigger": true
+  },
+  {
+   "prompt": "Plot latency on the Grafana dashboard",
+   "trigger": true
+  },
+  {
+   "prompt": "Fix the crash when uploading large videos",
+   "trigger": true,
+   "guide": "systematic-debugging"
+  },
+  {
+   "prompt": "clone my repo onto the server",
+   "trigger": false
+  },
+  {
+   "prompt": "replicate the bug in a test",
+   "trigger": true,
+   "guide": "systematic-debugging"
+  },
+  {
+   "prompt": "how does crawling work",
+   "trigger": false
+  },
+  {
+   "prompt": "what is a decompiler",
+   "trigger": false
+  },
+  {
+   "prompt": "are apks just zip files?",
+   "trigger": false
+  },
+  {
+   "prompt": "Write tests for the chart",
+   "trigger": true
+  },
+  {
+   "prompt": "Make the chart responsive",
+   "trigger": true
+  },
+  {
+   "prompt": "Build a line chart in React with D3",
+   "trigger": true
+  },
+  {
+   "prompt": "Create a video thumbnail in Python",
+   "trigger": true
+  },
+  {
+   "prompt": "explain this repo in a video",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-codebase-flow-video"
+  },
+  {
+   "prompt": "turn this pdf into a powerpoint",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pptx"
+  },
+  {
+   "prompt": "make a LinkedIn launch video for this project",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-codebase-flow-video"
+  },
+  {
+   "prompt": "Explain how video encoding works in this project",
+   "trigger": false
+  },
+  {
+   "prompt": "show me where this project handles videos",
+   "trigger": false
+  },
+  {
+   "prompt": "A docx or a pdf, which is better for a CV?",
+   "trigger": false
+  },
+  {
+   "prompt": "convert report.docx to pdf",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-docx"
+  },
+  {
+   "prompt": "merge a.pdf and b.pdf",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pdf"
+  },
+  {
+   "prompt": "fill out form.pdf",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pdf"
+  },
+  {
+   "prompt": "could you please make a powerpoint on Q4",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pptx"
+  },
+  {
+   "prompt": "Help me make a deck for Friday",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-pptx"
+  },
+  {
+   "prompt": "I’d like a spreadsheet of our vendors",
+   "trigger": true,
+   "kind": "document",
+   "guide": "shipwright-xlsx"
+  },
+  {
+   "prompt": "clone the widgets repo",
+   "trigger": false
+  },
+  {
+   "prompt": "clone our backend repository",
+   "trigger": false
+  },
+  {
+   "prompt": "clone https://github.com/acme/widgets.git",
+   "trigger": false
+  },
+  {
+   "prompt": "rebuild the docker image",
+   "trigger": true,
+   "not_guide": "build-from-best"
+  },
+  {
+   "prompt": "recreate the migrations",
+   "trigger": true,
+   "not_guide": "build-from-best"
+  },
+  {
+   "prompt": "rebuild the search index",
+   "trigger": true,
+   "not_guide": "build-from-best"
+  }
+ ]
+}
