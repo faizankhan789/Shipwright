@@ -485,6 +485,6 @@ tests/               test suite
 
 ## License
 
-Shipwright is **proprietary software, all rights reserved** by Faizan Khan. In plain terms, the [LICENSE](LICENSE) says use, copying, modification and distribution require written permission from the copyright holder. Read it before adopting Shipwright at work.
+Shipwright is released under the **MIT License** (see [LICENSE](LICENSE)). Use it, change it and share it freely, keeping the copyright notice.
 
 The four document guides (`docx`, `pdf`, `pptx`, `xlsx`) are third-party material and stay under Apache-2.0, with the license text in each guide's folder (`skills/shipwright/library/shipwright_documents/`).
