@@ -20,10 +20,11 @@ A Claude Code plugin where a script, not a promise, decides when work is done.</
   <a href="#install"><b>Install</b></a> ·
   <a href="#see-it-work">See it work</a> ·
   <a href="#how-work-flows">How work flows</a> ·
+  <a href="#what-to-expect">What to expect</a> ·
   <a href="#what-the-gates-refuse">The gates</a> ·
   <a href="#expert-council">Council</a> ·
   <a href="#guide-explorer">Guide explorer</a> ·
-  <a href="#measured-results">Results</a> ·
+  <a href="#test-results">Test results</a> ·
   <a href="#faq">FAQ</a>
 </p>
 
@@ -35,7 +36,7 @@ A Claude Code plugin where a script, not a promise, decides when work is done.</
 /plugin install shipwright --marketplace faizankhan789/Shipwright
 ```
 
-Run that inside Claude Code, restart it, then ask for something to be built or fixed. Shipwright starts on its own.
+Run that inside Claude Code, restart it, then ask for something to be built or fixed. Shipwright starts on its own. Try: *"Fix the off-by-one in pagination"* or *"Add CSV export to reports"*.
 
 > [!NOTE]
 > You need Claude Code 2.1.275+ and Python 3.9+. Git is optional but recommended. On Windows, Claude Code also needs Git Bash to run the plugin's hooks.
@@ -63,6 +64,8 @@ git clone https://github.com/faizankhan789/Shipwright.git
 claude plugin marketplace add ./Shipwright
 claude plugin install shipwright@shipwright
 ```
+
+The one-step form (`--marketplace`) needs a recent Claude Code. Older versions add the marketplace first, then install `shipwright@shipwright` (plugin name `@` marketplace name).
 
 **Check it worked:** `claude plugin list` should show `shipwright@shipwright` as enabled.
 
@@ -214,6 +217,22 @@ Evidence is signed, hash-chained and tied to a fingerprint of your code. Change 
 
 </details>
 
+## What to expect
+
+Shipwright changes how Claude works in your project, so here is the friction up front.
+
+| You will notice | Why |
+|---|---|
+| **Pauses for your approval** on features and products | The plan's intent is frozen once you approve, so later edits are caught. Auto mode removes the pauses and logs its judgment calls instead. |
+| **A `.shipwright/` folder** in your repo | Plans, decisions, signed evidence and logs. Commit it to share, or `.gitignore` it to keep it local. |
+| **A clean git tree is required** before building | So the gates can tell what changed. |
+| **Blocked hand-edits** to evidence, logs and plan status | A `PreToolUse` hook stops them; only `shipwright.py` writes those fields. Plan bodies stay editable. |
+| **More tokens on bigger work** | Small fixes stay on a short path. Feature reviews run up to seven reviewer agents, and the council is several agents debating over three rounds. Use the council only for decisions worth it. |
+
+**Four hooks run:** one nudges a resume when `.shipwright/` exists, one routes each prompt, one is the evidence guard above, and one runs the design check on UI files you write or edit.
+
+**Skip it when** you only want an answer, an explanation or an exact one-line edit. Those get no Shipwright at all.
+
 ## Expert council
 
 For decisions that are hard to reverse, five senior personas debate in three rounds, then an independent judge scores the options. Research shows debate improves answers but fails through agreement, so the protocol is built to prevent that.
@@ -358,7 +377,9 @@ These produce a file, so they skip plans and gates. Some need local tools: Libre
 
 </details>
 
-## Measured results
+## Test results
+
+These check that the plugin itself triggers, routes and gates correctly. They are not a measure of how much better your code gets: see the DORA note below.
 
 | What was tested | Result |
 |---|---|
@@ -464,4 +485,6 @@ tests/               test suite
 
 ## License
 
-Shipwright is licensed under the **Shipwright License** (see [LICENSE](LICENSE)). The four document guides (`docx`, `pdf`, `pptx`, `xlsx`) stay under Apache-2.0, with the license text in each guide's folder.
+Shipwright is **proprietary software, all rights reserved** by Faizan Khan. In plain terms, the [LICENSE](LICENSE) says use, copying, modification and distribution require written permission from the copyright holder. Read it before adopting Shipwright at work.
+
+The four document guides (`docx`, `pdf`, `pptx`, `xlsx`) are third-party material and stay under Apache-2.0, with the license text in each guide's folder (`skills/shipwright/library/shipwright_documents/`).
